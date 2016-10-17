@@ -1,10 +1,13 @@
 #include "huffman_encode.h"
 
+#define INTERVAL(time1, time2) time2-time1
+
 void write_code(bytewriter* writer, code c);
 void print_byte(unsigned char byte);
 
 //This function returns the encoded huffman tree. 
 void encode(char* input, char* filename) {
+	clock_t start = clock();
 	text inputtext = read_file(input);
 	unsigned char* string = inputtext.string;
 	unsigned int* frequencies = create_frequency_list(inputtext);
@@ -14,7 +17,6 @@ void encode(char* input, char* filename) {
 	bytewriter* writer = init_bytewriter(filename);
 	write_tree(writer, t);
 
-	clock_t start = clock();
 	for (unsigned long i = 0; i < inputtext.length; i++) {
 		write_code(writer, codes[string[i]]);
 	}
@@ -22,14 +24,10 @@ void encode(char* input, char* filename) {
 	fwrite(writer->bytes, sizeof(unsigned char), writer->length, writer->ofp);
 	fwrite(&writer->byte, sizeof(unsigned char), 1, writer->ofp);
 	clock_t end = clock();
-	double size = ftell(writer->ofp, 0L, SEEK_END) / 1000000;
-	double originalsize = inputtext.length / 1000000;
-	double ratio = (size / originalsize);
-	//printf("Orginal file: %.3f MB | Compressed file: %.3f MB | Compression ratio: %.1f%\n", originalsize, size, ratio);
-	double time = (end - start) / CLOCKS_PER_SEC;
-	//printf("Compression time: %f\n", time);
-	double speed = size / time; 
-	//printf("Compression speed: %f MBs\n", speed);
+	double size = ftell(writer->ofp, 0L, SEEK_END);
+	print_statistics_compression(size, inputtext.length);
+	print_statistics_time("Compression", start, end);
+	print_statics_speed("Compression", start, end, size);
 	free_bytewriter(writer);
 }
 

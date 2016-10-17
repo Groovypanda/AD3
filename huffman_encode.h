@@ -6,9 +6,8 @@
 #include "tree.h"
 #include "pqueue.h"
 #include "filehandler.h"
-#include "text.h"
 //For testing purposes
-#include <time.h>
+#include "statistics.h"
 
 typedef struct code {
 	int code;

@@ -1,6 +1,5 @@
 #include "filehandler.h"
 
-void print_byte2(unsigned char byte);
 
 void write_bits(bytewriter* b, int bits, unsigned int amount) {
 	int i = amount - 1; 
@@ -211,17 +210,4 @@ tree* read_tree(bytereader* reader) {
 	t->root = (node*)malloc(sizeof(node));
 	read_tree_recurse(reader, t->root);
 	return t;
-}
-
-void print_byte2(unsigned char byte) {
-	for (int i = 7; i >= 0; i--) {
-		//int bit = (i >> byte) & 1;
-		if ((1 << i) & byte) {
-			printf("1");
-		}
-		else {
-			printf("0");
-		}
-	}
-	printf(" ");
 }

@@ -4,10 +4,11 @@
 #include "huffman_decode.h"
 
 #define TIME(end, start) (double)(end - start) / CLOCKS_PER_SEC
-#define MAX 16777216 //32 bits.
+#define MAX 4294967296//32 bits.
+#define MB_amount 500
 #define ERROR "The arguments are incorrect.\nUsage: comprimeer1 <-c/-d> <inputfile> <outputfile>"
 
-void generate(char* filename, unsigned long long maximum);
+void generate(char* filename);
 void shutdown(char* errormessage);
 
 /*
@@ -15,12 +16,12 @@ TODO FREE TREE FUNCTIE
 */
 
 int main(/*int argc, char* argv[]*/) {
-	clock_t start = clock();
-	generate("data/data.txt", MAX);
-	char* input = "data/data.txt";
+	char* input = "data/data_long.txt";
+	generate(input);
 	//generate(input, MAX);
 	char* encoded = "data/encoded"; 
 	encode(input, encoded);
+	clock_t start = clock();
 	char* decoded = "data/decoded.txt";
 	decode(encoded, decoded);
 	/*
@@ -52,13 +53,19 @@ int main(/*int argc, char* argv[]*/) {
 	return 0; 
 }
 
-void generate(char* filename, unsigned long long max) {
+void generate(char* filename) {
 	int seed = time(NULL);
 	unsigned long long x = rand(seed);
 
 	FILE* ofp = fopen(filename, "w");
 	fwrite("[", 1, 1, ofp);
+	/*
 	while (x < max) {
+		fprintf(ofp, "%llu", x);
+		fwrite(",", 1, 1, o	fp);
+		x += rand();
+	}*/
+	for (int i = 0; i < MB_amount*10000; i++) {
 		fprintf(ofp, "%llu", x);
 		fwrite(",", 1, 1, ofp);
 		x += rand();
