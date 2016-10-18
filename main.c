@@ -6,7 +6,6 @@
 #define TIME(end, start) (double)(end - start) / CLOCKS_PER_SEC
 #define MAX 4294967296//32 bits.
 #define MB_amount 500
-#define ERROR "The arguments are incorrect.\nUsage: comprimeer1 <-c/-d> <inputfile> <outputfile>"
 
 void generate(char* filename);
 void shutdown(char* errormessage);
@@ -16,8 +15,8 @@ TODO FREE TREE FUNCTIE
 */
 
 int main(/*int argc, char* argv[]*/) {
-	char* input = "data/data_long.txt";
-	generate(input);
+	char* input = "data/data_short.txt";
+	//generate(input);
 	//generate(input, MAX);
 	char* encoded = "data/encoded"; 
 	encode(input, encoded);

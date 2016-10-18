@@ -28,13 +28,18 @@ void encode(char* input, char* filename) {
 	print_statistics_compression(size, inputtext.length);
 	print_statistics_time("Compression", start, end);
 	print_statics_speed("Compression", start, end, size);
+	//Free everything
+	free(frequencies);
+	free(codes);
+	free(string);
+	free_tree(t);
 	free_bytewriter(writer);
 }
 
 unsigned int* create_frequency_list(text input) {
 	//Maybe make this more efficient?
 	unsigned int i;
-	unsigned int* frequencies = (unsigned int*)malloc(sizeof(unsigned int) * 256);
+	unsigned int* frequencies = (unsigned int*)allocate_memory(sizeof(unsigned int) * 256);
 	for (i = 0; i < 256; i++) {
 		frequencies[i] = 0;
 	}
@@ -48,7 +53,7 @@ unsigned int* create_frequency_list(text input) {
 }
 
 tree* build_tree(unsigned int* frequencies) {
-	pqueue* queue = (pqueue*)malloc(sizeof(pqueue));
+	pqueue* queue = (pqueue*)allocate_memory(sizeof(pqueue));
 	init_pqueue(queue);
 	fill_pqueue(frequencies, queue);
 	while (queue->length > 1) {
@@ -79,7 +84,10 @@ void init_code(code* codes, node* currentnode, int currentcode, unsigned int cur
 
 //Edits currentmax
 code* init_codes(tree* t) {
-	code* codes = (code*)malloc(sizeof(code) * 256);
+	code* codes = (code*)allocate_memory(sizeof(code) * 256);
+	if (!codes) {
+
+	}
 	for (unsigned int i = 0; i < 256; i++) {
 		codes[i].code = -1;
 		codes[i].length = 0;

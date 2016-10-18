@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tree.h"
+#include "errorhandler.h"
+
 
 typedef struct pqueue {
 	tree** list;

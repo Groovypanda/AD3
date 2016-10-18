@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "errorhandler.h"
 
 typedef struct node {
 	unsigned int frequency;
@@ -19,5 +20,9 @@ typedef struct tree {
 tree* merge_trees(tree* t1, tree* t2);
 
 void print_tree(node* n, int index);
+
+void free_node(node* node);
+
+void free_tree(tree* t);
 
 #endif

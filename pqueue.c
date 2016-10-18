@@ -6,7 +6,7 @@ void percolate_down(pqueue* p, int spot);
 void init_pqueue(pqueue* p) {
 	p->length = 0;
 	p->size = 2;
-	p->list = (tree**)malloc(sizeof(tree*)*p->size);
+	p->list = (tree**)allocate_memory(sizeof(tree*)*p->size);
 }
 
 void print_pqueue(pqueue* p) {
@@ -29,6 +29,9 @@ void push_pqueue(pqueue* p, tree* t) {
 		if (p->length >= p->size) {
 			p->size *= 2;
 			p->list = (tree**)realloc(p->list, sizeof(tree*)*p->size);
+			if (!p->list) {
+				throw_error(MEMORY_ERROR);
+			}
 		}
 		//Place of new element. 
 		int spot = p->length;
@@ -84,8 +87,8 @@ void percolate_down(pqueue* p, int spot) {
 void fill_pqueue(int* frequencies, pqueue* queue) {
 	for (int i = 0; i < 256; i++) {
 		if (frequencies[i]) {
-			tree* t = (tree*)malloc(sizeof(tree));
-			t->root = (node*)malloc(sizeof(node));
+			tree* t = (tree*)allocate_memory(sizeof(tree));
+			t->root = (node*)allocate_memory(sizeof(node));
 			t->root->left = NULL;
 			t->root->right = NULL;
 			t->root->value = (char)i;

@@ -6,6 +6,7 @@
 #include "tree.h"
 #include "pqueue.h"
 #include "filehandler.h"
+#include "errorhandler.h"
 //For testing purposes
 #include "statistics.h"
 

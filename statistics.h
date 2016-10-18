@@ -3,6 +3,8 @@
 
 #include <time.h>
 #include <stdio.h>
+#include "errorhandler.h"
+
 
 #define TIME(start, end) ((end - start)/CLOCKS_PER_SEC)
 

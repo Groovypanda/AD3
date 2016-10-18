@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "filehandler.h"
+#include "errorhandler.h"
 #include "statistics.h"
 
 //This functions decodes a huffman tree. 

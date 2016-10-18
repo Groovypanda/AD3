@@ -7,12 +7,10 @@ void decode(char* filename, char* filename_decoded) {
 	FILE* ofp;
 	bytereader* reader = init_bytereader(filename);
 	tree* t = read_tree(reader);
-	//Check if tree with codes is correct.  
-	/*TODO*///print_tree(t->root, 0);
 	node* root = t->root; 
 	node* cur = t->root;
 	unsigned int length = 0, buffersize=100;
-	unsigned char* buffer =(unsigned char*)malloc(sizeof(unsigned char) * buffersize);
+	unsigned char* buffer =(unsigned char*)allocate_memory(sizeof(unsigned char) * buffersize);
 	//While not EOF
 	while (cur->value != 3) {
 		if (cur->value=='\0') {
@@ -30,6 +28,9 @@ void decode(char* filename, char* filename_decoded) {
 			if (length == buffersize) {
 				buffersize *= 2;
 				buffer = (unsigned char*)realloc(buffer, buffersize);
+				if (!buffer) {
+					throw_error(MEMORY_ERROR);
+				}
 			}
 			cur = root;
 		}

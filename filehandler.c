@@ -93,8 +93,7 @@ unsigned char* read_binary_file(char* filename) {
 	/* Open file for both reading and writing */
 	fp = fopen(filename, "rb");
 	if (!fp) {
-		printf("The given file couldn't be opened. (File: %s)\n", filename);
-		exit(-1);
+		throw_error(FILE_ERROR);
 	}
 
 	fseek(fp, 0, SEEK_END);
@@ -103,7 +102,8 @@ unsigned char* read_binary_file(char* filename) {
 	/* Seek to the beginning of the file */
 	rewind(fp);
 
-	buffer = (unsigned char*)malloc(sizeof(unsigned char)*size + 1);
+	buffer =(unsigned char*) allocate_memory(sizeof(unsigned char)*size + 1);
+
 	buffer[size] = '\0';
 	//buffer[size] = '\0';
 
@@ -114,7 +114,7 @@ unsigned char* read_binary_file(char* filename) {
 }
 
 bytewriter* init_bytewriter(char* filename) {
-	bytewriter* writer = (bytewriter*)malloc(sizeof(bytewriter));
+	bytewriter* writer = (bytewriter*)allocate_memory(sizeof(bytewriter));
 	writer->remaining_bits = 8;
 	writer->buffersize = 100;  
 	writer->length = 0; 
@@ -123,12 +123,12 @@ bytewriter* init_bytewriter(char* filename) {
 	if (!writer->ofp) {
 		printf("The given file couldn't be opened. (File: %s)\n", filename);
 	}
-	writer->bytes = (unsigned char*)malloc(sizeof(unsigned char)*writer->buffersize);
+	writer->bytes = (unsigned char*)allocate_memory(sizeof(unsigned char)*writer->buffersize);
 	return writer;
 }
 
 bytereader* init_bytereader(char* filename) {
-	bytereader* reader = (bytereader*)malloc(sizeof(bytereader));
+	bytereader* reader = (bytereader*)allocate_memory(sizeof(bytereader));
 	reader->index = 0;
 	reader->remaining_bits_amount = 8;
 	reader->bytes = read_binary_file(filename);
