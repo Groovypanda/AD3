@@ -3,7 +3,6 @@
 #include "huffman_encode.h"
 #include "huffman_decode.h"
 
-#define TIME(end, start) (double)(end - start) / CLOCKS_PER_SEC
 #define MAX 4294967296//32 bits.
 #define MB_amount 500
 
@@ -15,7 +14,7 @@ TODO FREE TREE FUNCTIE
 */
 
 int main(/*int argc, char* argv[]*/) {
-	char* input = "data/data_short.txt";
+	char* input = "data/data.txt";
 	//generate(input);
 	//generate(input, MAX);
 	char* encoded = "data/encoded"; 
@@ -53,8 +52,7 @@ int main(/*int argc, char* argv[]*/) {
 }
 
 void generate(char* filename) {
-	int seed = time(NULL);
-	unsigned long long x = rand(seed);
+	unsigned long long x = rand();
 
 	FILE* ofp = fopen(filename, "w");
 	fwrite("[", 1, 1, ofp);

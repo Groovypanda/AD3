@@ -12,8 +12,13 @@
 
 typedef struct code {
 	int code;
-	unsigned int length;
+	unsigned int code_length;
 } code;
+
+typedef struct code_list {
+	code* codes;
+	unsigned int list_length; 
+} code_list;
 
 //This function returns the encoded huffman tree. 
 void encode(char* input, char* filename);
@@ -22,8 +27,10 @@ tree* build_tree(unsigned int* frequencies);
 
 unsigned int* create_frequency_list(text input);
 
-void init_code(code* codes, node* currentnode, int currentcode, unsigned int currentlength);
+void init_code(code_list** codes, node* currentnode, int currentcode, unsigned int currentlength);
 
-code* init_codes(tree* t);
+code_list** init_codes(tree* t);
+
+void write_code_list(bytewriter* writer, code_list* list);
 
 #endif
