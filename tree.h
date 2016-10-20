@@ -7,7 +7,7 @@
 
 typedef struct node {
 	unsigned int frequency;
-	unsigned char value; //This is zero if not a root
+	unsigned char value;
 	struct node* left;
 	struct node* right;
 } node;

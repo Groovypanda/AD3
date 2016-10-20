@@ -66,7 +66,7 @@ text read_file(char* filename) {
 	fp = fopen(filename, "r");
 	fseek(fp, 0, SEEK_END);
 	//Add 1 place for end of file. 
-	unsigned int size = ftell(fp) + 1;
+	unsigned int size = ftell(fp);
 
 	/* Seek to the beginning of the file */
 	rewind(fp);
@@ -78,7 +78,6 @@ text read_file(char* filename) {
 	fclose(fp);
 
 	//Add end of file to buffer
-	buffer[size - 1] = 3;
 	buffer[size] = '\0';
 	input.length = size; 
 	input.string = buffer; 

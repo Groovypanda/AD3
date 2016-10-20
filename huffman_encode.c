@@ -10,14 +10,15 @@ void encode(char* input, char* filename) {
 	unsigned int* frequencies = create_frequency_list(inputtext);
 	tree* t = build_tree(frequencies);
 	code_list** codes = init_codes(t);
-
 	bytewriter* writer = init_bytewriter(filename);
 	write_tree(writer, t);
-
+	int total_length = 0;
 	for (unsigned long i = 0; i < inputtext.length; i++) {
-		write_code_list(writer, codes[string[i]]);
+		unsigned char x = string[i];
+		total_length += write_code_list(writer, codes[x]);
 	}
 	//Write out buffer
+	fwrite(&total_length, sizeof(unsigned int), 1, writer->ofp);
 	fwrite(writer->bytes, sizeof(unsigned char), writer->length, writer->ofp);
 	fwrite(&writer->byte, sizeof(unsigned char), 1, writer->ofp);
 	clock_t end = clock();
@@ -63,29 +64,25 @@ tree* build_tree(unsigned int* frequencies) {
 }
 
 void init_code(code_list** codes, node* currentnode, int currentcode, unsigned int currentlength) {
-	if (currentnode->value != '\0') {
+	if (currentnode->left && currentnode->right) {
+		currentcode <<= 1;
+		currentlength++;
+		init_code(codes, currentnode->left, currentcode, currentlength);
+		currentcode |= 1;
+		init_code(codes, currentnode->right, currentcode, currentlength);
+	}
+	else {
 		int amount = currentlength / 32 + 1;
 		code_list* list = (code_list*)malloc(sizeof(code_list));
-		list->list_length = amount; 
+		list->list_length = amount;
 		list->codes = (code*)malloc(sizeof(code)*amount);
 		for (unsigned int i = 0; i < amount; i++) {
 			list->codes[i].code = currentcode & ((1 << 32) - 1);
-			list->codes[i].code_length = 32; 
-			currentcode >>= 32; 
+			list->codes[i].code_length = 32;
+			currentcode >>= 32;
 		}
-		list->codes[amount - 1].code_length = currentlength % 32; 
+		list->codes[amount - 1].code_length = currentlength % 32;
 		codes[currentnode->value] = list;
-	}
-	else {
-		currentcode <<= 1;
-		currentlength++; 
-		if (currentnode->left) {
-			init_code(codes, currentnode->left, currentcode, currentlength);
-		}
-		if (currentnode->right) {
-			currentcode |= 1;
-			init_code(codes, currentnode->right, currentcode, currentlength);
-		}
 	}
 }
 
@@ -97,10 +94,14 @@ code_list** init_codes(tree* t) {
 	return codes; 
 }
 
-void write_code_list(bytewriter* writer, code_list* list) {
+unsigned int write_code_list(bytewriter* writer, code_list* list) {
+	int bits_written = 0; 
 	for (unsigned int i = 0; i < list->list_length; i++) {
-		write_bits(writer, list->codes[i].code, list->codes[i].code_length);
+		code c = list->codes[i];
+		write_bits(writer, c.code, c.code_length);
+		bits_written += c.code_length; 
 	}
+	return bits_written;
 }
 
 void print_byte(unsigned char byte) {

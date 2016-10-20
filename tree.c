@@ -14,7 +14,7 @@ tree* merge_trees(tree* t1, tree* t2) {
 }
 
 void print_tree(node* n, int index) {
-	if (n->value == '\0') {
+	if (n->left && n->right) {
 		printf("Node  %d has frequency %d\n", index, n->frequency);
 		if (n->left) {
 			print_tree(n->left, 2 * index + 1);

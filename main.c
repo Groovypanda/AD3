@@ -9,12 +9,8 @@
 void generate(char* filename);
 void shutdown(char* errormessage);
 
-/*
-TODO FREE TREE FUNCTIE
-*/
-
 int main(/*int argc, char* argv[]*/) {
-	char* input = "data/data.txt";
+	char* input = "data/data_short.txt";
 	//generate(input);
 	//generate(input, MAX);
 	char* encoded = "data/encoded"; 

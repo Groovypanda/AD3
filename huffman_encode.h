@@ -31,6 +31,7 @@ void init_code(code_list** codes, node* currentnode, int currentcode, unsigned i
 
 code_list** init_codes(tree* t);
 
-void write_code_list(bytewriter* writer, code_list* list);
+//Returns amount of written bits.
+unsigned int write_code_list(bytewriter* writer, code_list* list);
 
 #endif
