@@ -19,7 +19,9 @@ typedef struct tree {
 
 tree* merge_trees(tree* t1, tree* t2);
 
-void print_tree(node* n, int index);
+void print_node(node* n, int index, int depth);
+
+void print_tree(tree* t);
 
 void free_node(node* node);
 

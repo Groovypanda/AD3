@@ -2,7 +2,6 @@
 
 void print_byte(unsigned char byte);
 
-//This function returns the encoded huffman tree. 
 void encode(char* input, char* filename) {
 	clock_t start = clock();
 	text inputtext = read_file(input);
@@ -12,7 +11,8 @@ void encode(char* input, char* filename) {
 	code_list** codes = init_codes(t);
 	bytewriter* writer = init_bytewriter(filename);
 	write_tree(writer, t);
-	int total_length = 0;
+	
+	unsigned int total_length = 0;
 	for (unsigned long i = 0; i < inputtext.length; i++) {
 		unsigned char x = string[i];
 		total_length += write_code_list(writer, codes[x]);

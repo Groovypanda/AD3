@@ -13,18 +13,27 @@ tree* merge_trees(tree* t1, tree* t2) {
 	return t;
 }
 
-void print_tree(node* n, int index) {
-	if (n->left && n->right) {
-		printf("Node  %d has frequency %d\n", index, n->frequency);
-		if (n->left) {
-			print_tree(n->left, 2 * index + 1);
-		}
-		if (n->right) {
-			print_tree(n->right, 2 * index + 2);
-		}
+
+void print_tree(tree* t) {
+	if (t->root) {
+		print_node(t->root, 0, 0);
 	}
 	else {
-		printf("Leaf %d has value %d and frequency %d\n", index, n->value, n->frequency);
+		printf("The tree is completely empty");
+	}
+}
+
+
+void print_node(node* n, int index, int depth) {
+	if (n->left && n->right) {
+		//printf("Node  %d (%d)\n", index, depth);
+		print_node(n->left, 2 * index + 1, depth+1);
+		print_node(n->right, 2 * index + 2, depth+1);
+	}
+	else {
+		//if (index > 700) {
+			printf("Leaf %d (%d) has value %d\n", index, depth, n->value);
+		//}
 	}
 
 }

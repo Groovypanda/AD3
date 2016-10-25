@@ -4,15 +4,16 @@
 #include "huffman_decode.h"
 
 #define MAX 4294967296//32 bits.
+#define MAX 124294967296
 #define MB_amount 500
 
 void generate(char* filename);
 void shutdown(char* errormessage);
 
 int main(/*int argc, char* argv[]*/) {
-	char* input = "data/data_short.txt";
-	//generate(input);
-	//generate(input, MAX);
+	char* input = "data/data2.txt";
+	generate(input);
+	generate(input, MAX);
 	char* encoded = "data/encoded"; 
 	encode(input, encoded);
 	clock_t start = clock();

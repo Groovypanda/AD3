@@ -11,9 +11,8 @@ void init_pqueue(pqueue* p) {
 
 void print_pqueue(pqueue* p) {
 	printf("PRIORITY QUEUE WITH LENGTH %d\n", p->length);
-	int i = 0;
-	int frequency = 0;
-	for (i = 0; i < p->length; i++) {
+	unsigned int frequency = 0;
+	for (unsigned int i = 0; i < p->length; i++) {
 		printf("%c: %d\n", p->list[i]->root->value, p->list[i]->root->frequency);
 		frequency += p->list[i]->frequency;
 	}
@@ -84,8 +83,8 @@ void percolate_down(pqueue* p, int spot) {
 	}
 }
 
-void fill_pqueue(int* frequencies, pqueue* queue) {
-	for (int i = 0; i < 256; i++) {
+void fill_pqueue(unsigned int* frequencies, pqueue* queue) {
+	for (unsigned int i = 0; i < 256; i++) {
 		if (frequencies[i]) {
 			tree* t = (tree*)allocate_memory(sizeof(tree));
 			t->root = (node*)allocate_memory(sizeof(node));

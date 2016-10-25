@@ -16,22 +16,17 @@ void write_bits(bytewriter* b, int bits, unsigned int amount) {
 				b->remaining_bits--;
 				i--;
 			}
-			//TODO
 			if (b->remaining_bits == 0) {
 				b->bytes[b->length++] = b->byte;
 				if (b->length == b->buffersize) {
-					//CHANGE THIS BACK TO *=2
 					b->buffersize *= 2; 
-					//b->buffersize+=1
 					b->bytes = (unsigned char*)realloc(b->bytes, b->buffersize);
 					if (b->buffersize >= 500000000) {
 						printf("ERROR: BUFFERSIZE IS TO HIGH");
 					}
 				}
-				//fwrite(&b->byte, 1, 1, b->ofp);
 				b->byte = 0;
 				b->remaining_bits = 8;
-				//initial_buffersize = b->remaining_bits;
 			}
 		}
 }	
@@ -170,21 +165,21 @@ void print_binary_file(char* filename) {
 }
 
 void write_tree_recurse(bytewriter* writer, node* n) {
-	if (n) {
-		if (n->value != '\0') {
-			write_bits(writer, 1, 1);
-			write_bits(writer, n->value, 8);
-		}
-		else {
-			write_bits(writer, 0, 1);
-			write_tree_recurse(writer, n->left);
-			write_tree_recurse(writer, n->right);
-		}
+	if (n->left && n->right) {
+		write_bits(writer, 0, 1);
+		write_tree_recurse(writer, n->left);
+		write_tree_recurse(writer, n->right);
+	}
+	else {
+		write_bits(writer, 1, 1);
+		write_bits(writer, n->value, 8);	
 	}
 }
 
 void write_tree(bytewriter* writer, tree* t) {
-	write_tree_recurse(writer, t->root);
+	if (t->root) {
+		write_tree_recurse(writer, t->root);
+	}
 }
 
 void read_tree_recurse(bytereader* reader, node* n) {
