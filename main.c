@@ -11,13 +11,13 @@ void generate(char* filename);
 void shutdown(char* errormessage);
 
 int main(/*int argc, char* argv[]*/) {
-	char* input = "data/Opgave.pdf";
+	char* input = "data/pic.jpg";
 	//generate(input);
 	char* encoded = "data/encoded"; 
 	encode(input, encoded);
 	printf("=============\n=============\n=============\n");
 	clock_t start = clock();
-	char* decoded = "data/decoded.pdf";
+	char* decoded = "data/decoded.jpg";
 	decode(encoded, decoded);
 	/*
 	for (int i = 0; i < argc; i++) {
