@@ -1,51 +1,74 @@
 #include "huffman_encode.h"
 
-void print_byte(unsigned char byte);
-
-void encode(char* input, char* filename) {
-	clock_t start = clock();
-	text inputtext = read_file(input);
-	unsigned char* string = inputtext.string;
-	unsigned int* frequencies = create_frequency_list(inputtext);
+void huffman_encode(textreader* reader, bytewriter* writer) {
+	unsigned int* frequencies = create_frequency_list(reader->buffer, reader->text_length);
 	tree* t = build_tree(frequencies);
 	code_list** codes = init_codes(t);
-	bytewriter* writer = init_bytewriter(filename);
+
+	fwrite(&reader->text_length, sizeof(unsigned int), 1, writer->ofp);
 	write_tree(writer, t);
-	
-	unsigned int total_length = 0;
-	for (unsigned long i = 0; i < inputtext.length; i++) {
-		unsigned char x = string[i];
-		total_length += write_code_list(writer, codes[x]);
+	for (unsigned long i = 0; i < reader->text_length; i++) {
+		unsigned char x = reader->buffer[i];
+		write_code_list(writer, codes[x]);
 	}
+
 	//Write out buffer
-	fwrite(&total_length, sizeof(unsigned int), 1, writer->ofp);
-	fwrite(writer->bytes, sizeof(unsigned char), writer->length, writer->ofp);
-	fwrite(&writer->byte, sizeof(unsigned char), 1, writer->ofp);
-	clock_t end = clock();
-	double size = ftell(writer->ofp, 0L, SEEK_END);
-	print_statistics_compression(size, inputtext.length);
-	print_statistics_time("Compression", start, end);
-	print_statics_speed("Compression", start, end, size);
+	fwrite(writer->buffer, sizeof(unsigned char), writer->length, writer->ofp);
+	if (writer->remaining_bits) {
+		fwrite(&writer->byte, sizeof(unsigned char), 1, writer->ofp);
+	}
+	writer->byte = 0;
+	writer->length = 0;
+	writer->remaining_bits = 8;
+
 	//Free everything
 	free(frequencies);
 	free(codes);
-	free(string);
 	free_tree(t);
-	free_bytewriter(writer);
 }
 
-unsigned int* create_frequency_list(text input) {
-	//Maybe make this more efficient?
+void encode(char* input, char* output) {
+	//clock_t start = clock();
+	unsigned long size;
+	textreader* reader = init_textreader(input, "rb");
+	bytewriter* writer = init_bytewriter(output);
+	//While reading isn't finished, huffman encode.
+	
+	int block = 0;
+	while (!read_file(reader)) {
+		printf("Block %d\n", block++);
+		huffman_encode(reader, writer);
+	}
+	//One last time, to write last bytes. 
+	if (reader->text_length) {
+		printf("Block %d\n", block);
+		huffman_encode(reader, writer);
+	}
+	
+	size = reader->total_size;
+
+	free_bytewriter(writer);
+	free_textreader(reader);
+
+	//clock_t end = clock();
+	//print_statistics_compression(size, reader->total_size);
+	//print_statistics_time("Compression", start, end);
+	//print_statics_speed("Compression", start, end, size);
+	
+
+}
+
+unsigned int* create_frequency_list(char* text, unsigned int length) {
 	unsigned int i;
 	unsigned int* frequencies = (unsigned int*)allocate_memory(sizeof(unsigned int) * 256);
 	for (i = 0; i < 256; i++) {
 		frequencies[i] = 0;
 	}
 	i = 0;
-	while (i < input.length) {
-		unsigned char x = input.string[i];
+	while (i < length) {
+		unsigned char x = text[i];
 		frequencies[x]++;
-		x = input.string[i++];
+		x = text[i++];
 	}
 	return frequencies;
 }
@@ -72,10 +95,10 @@ void init_code(code_list** codes, node* currentnode, int currentcode, unsigned i
 		init_code(codes, currentnode->right, currentcode, currentlength);
 	}
 	else {
-		int amount = currentlength / 32 + 1;
-		code_list* list = (code_list*)malloc(sizeof(code_list));
+		unsigned int amount = currentlength / 32 + 1;
+		code_list* list = codes[currentnode->value];
 		list->list_length = amount;
-		list->codes = (code*)malloc(sizeof(code)*amount);
+		list->codes = (code*)allocate_memory(sizeof(code)*amount);
 		for (unsigned int i = 0; i < amount; i++) {
 			list->codes[i].code = currentcode & ((1 << 32) - 1);
 			list->codes[i].code_length = 32;
@@ -89,19 +112,20 @@ void init_code(code_list** codes, node* currentnode, int currentcode, unsigned i
 //Edits currentmax
 code_list** init_codes(tree* t) {
 	//For every value, 1 code_list.
-	code_list** codes = (code_list**)malloc(sizeof(code_list*) * 256);
+	code_list** codes = (code_list**)allocate_memory(sizeof(code_list*) * 256);
+	for (unsigned int i = 0; i < 256; i++) {
+		codes[i] = (code_list*)allocate_memory(sizeof(code_list));
+		codes[i]->list_length = 0;
+	}
 	init_code(codes, t->root, 0, 0);
 	return codes; 
 }
 
-unsigned int write_code_list(bytewriter* writer, code_list* list) {
-	int bits_written = 0; 
+void write_code_list(bytewriter* writer, code_list* list) {
 	for (unsigned int i = 0; i < list->list_length; i++) {
 		code c = list->codes[i];
 		write_bits(writer, c.code, c.code_length);
-		bits_written += c.code_length; 
 	}
-	return bits_written;
 }
 
 void print_byte(unsigned char byte) {

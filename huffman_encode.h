@@ -25,13 +25,16 @@ void encode(char* input, char* filename);
 
 tree* build_tree(unsigned int* frequencies);
 
-unsigned int* create_frequency_list(text input);
+unsigned int* create_frequency_list(char* text, unsigned int length);
 
 void init_code(code_list** codes, node* currentnode, int currentcode, unsigned int currentlength);
 
 code_list** init_codes(tree* t);
 
 //Returns amount of written bits.
-unsigned int write_code_list(bytewriter* writer, code_list* list);
+void write_code_list(bytewriter* writer, code_list* list);
+
+void print_byte(unsigned char byte);
+
 
 #endif

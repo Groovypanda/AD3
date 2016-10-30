@@ -31,21 +31,17 @@ void print_node(node* n, int index, int depth) {
 		print_node(n->right, 2 * index + 2, depth+1);
 	}
 	else {
-		//if (index > 700) {
-			printf("Leaf %d (%d) has value %d\n", index, depth, n->value);
-		//}
+		printf("Leaf %d (%d) has value %d\n", index, depth, n->value);
 	}
 
 }
 
 void free_node(node* node) {
-	if (node->left) {
+	if (node) {
 		free_node(node->left);
-	}
-	if (node->right) {
 		free_node(node->right);
+		free(node);
 	}
-	free(node);
 }
 
 void free_tree(tree* t) {

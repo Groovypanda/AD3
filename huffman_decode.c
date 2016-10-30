@@ -1,26 +1,18 @@
 #include "huffman_decode.h"
 
-//This functions decodes a huffman tree. 
+//This function decodes a huffman tree. 
 
-void decode(char* filename, char* filename_decoded) {
-	time_t start = clock();
-	FILE* ofp;
-	bytereader* reader = init_bytereader(filename);
-	unsigned int code_length;
-	memcpy(&code_length, reader->bytes, sizeof(unsigned int));
+int huffman_decode(bytereader* reader, textwriter* writer) {
+	textreader* textreader = reader->textreader;
+	unsigned long i = 0, text_length =0;
+	memcpy(&text_length, textreader->buffer+reader->index, sizeof(unsigned int));
 	reader->index += sizeof(unsigned int);
 	tree* t = read_tree(reader);
-	//printf("========================\n========================\n========================\n========================\n");
-	//print_tree(t);
-	node* root = t->root; 
+	node* root = t->root;
 	node* cur = t->root;
-	unsigned int i = 0, length = 0, buffersize=100;
-	unsigned char* buffer =(unsigned char*)allocate_memory(sizeof(unsigned char) * buffersize);
-	//While not EOF
-	while(i < code_length+1){ 
+	while (i < text_length) {
 		if (cur->left && cur->right) {
 			int x = read_bits(reader, 1);
-			i++;
 			if (x) {
 				cur = cur->right;
 			}
@@ -29,22 +21,38 @@ void decode(char* filename, char* filename_decoded) {
 			}
 		}
 		else {
-			buffer[length++] = cur->value;
-			if (length == buffersize) {
-				buffersize *= 2;
-				buffer = (unsigned char*)realloc(buffer, buffersize);
-				if (!buffer) {
-					throw_error(MEMORY_ERROR);
-				}
-			}
+			i++;
+			write_char(writer, cur->value);
 			cur = root;
 		}
 	}
-	ofp = fopen(filename_decoded, "w");
-	fwrite(buffer, sizeof(unsigned char), length, ofp);
-	fclose(ofp);
+	free_tree(t);
+	if (reader->remaining_bits_amount) {
+		reader->remaining_bits_amount = 8;
+		reader->index++;
+	}
+	return textreader->text_length < MAX_BUFFERSIZE; //IS THIS CORRECT? 
+
+}
+
+void decode(char* input, char* output) {
+	time_t start = clock();
+	bytereader* reader = init_bytereader(input);
+	textwriter* writer = init_textwriter(output);
+	int finished = 0;
+	read_file(reader->textreader);
+	printf("Decoding\n");
+	int block = 0; 
+	while (!finished) {
+		printf("Block %d\n", block++);
+		finished = huffman_decode(reader, writer);
+	}
+	printf("Block %d\n", block++);
+	huffman_decode(reader, writer);
+	flush(writer);
+	free_bytereader(reader);
+	free_textwriter(writer);
 	clock_t end = clock();
 	print_statistics_time("Decompression", start, end);
-	free_bytereader(reader);
 	
 }

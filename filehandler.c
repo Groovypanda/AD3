@@ -12,18 +12,15 @@ void write_bits(bytewriter* b, int bits, unsigned int amount) {
 			}
 			else {
 				int bit = (bits >> i) & 1;
-				b->byte |= bit << b->remaining_bits - 1;
+				b->byte |= (bit << (b->remaining_bits - 1));
 				b->remaining_bits--;
 				i--;
 			}
 			if (b->remaining_bits == 0) {
-				b->bytes[b->length++] = b->byte;
-				if (b->length == b->buffersize) {
-					b->buffersize *= 2; 
-					b->bytes = (unsigned char*)realloc(b->bytes, b->buffersize);
-					if (b->buffersize >= 500000000) {
-						printf("ERROR: BUFFERSIZE IS TO HIGH");
-					}
+				b->buffer[b->length++] = b->byte;
+				if (b->length == MAX_BUFFERSIZE) {
+					fwrite(b->buffer, sizeof(unsigned char), MAX_BUFFERSIZE, b->ofp);
+					b->length = 0; 
 				}
 				b->byte = 0;
 				b->remaining_bits = 8;
@@ -33,100 +30,95 @@ void write_bits(bytewriter* b, int bits, unsigned int amount) {
 
 
 unsigned int read_bits(bytereader* reader, unsigned int amount) {
-	assert(amount > 0);
+	textreader* treader = reader->textreader;
 	int result = 0;
-	unsigned char byte = reader->bytes[reader->index];
+	unsigned char byte = treader->buffer[reader->index];
 	for (unsigned int i = 0; i < amount; i++) {
 		//Get nth bit of byte.
-		unsigned int index = reader->remaining_bits_amount - 1;
-		int bit = (byte >> index) & 1;
+		unsigned int i = reader->remaining_bits_amount - 1;
+		int bit = (byte >> i) & 1;
 		//Set nth bit of result.
 		result |= bit;
 		reader->remaining_bits_amount--;
 		if (!reader->remaining_bits_amount) {
-			byte = reader->bytes[++reader->index];
+			byte = treader->buffer[++reader->index];
 			reader->remaining_bits_amount = 8;
+			if (reader->index == MAX_BUFFERSIZE) {
+				read_file(reader->textreader);
+				reader->index = 0;
+			}
 		}
 		result <<= 1;
 	}
 	return result >> 1;
 }
 
-
-text read_file(char* filename) {
-	FILE *fp;
-	unsigned char* buffer;
-	text input; 
-	/* Open file for both reading and writing */
-	fp = fopen(filename, "r");
-	fseek(fp, 0, SEEK_END);
-	//Add 1 place for end of file. 
-	unsigned int size = ftell(fp);
-
-	/* Seek to the beginning of the file */
-	rewind(fp);
-
-	buffer = (unsigned char*)malloc(sizeof(unsigned char)*size + 1);
-
-	/* Read and return data, we ignore the [ and ] */
-	fread(buffer, size, 1, fp);
-	fclose(fp);
-
-	//Add end of file to buffer
-	buffer[size] = '\0';
-	input.length = size; 
-	input.string = buffer; 
-	return input;
+//Places text which is read into reader->text.
+//Specify amount of bytes to be read in reader->amount_to_read, total amount of bytes which are read are updated into reader->length.
+int read_file(textreader* reader) {
+	size_t read_amount = fread(reader->buffer, sizeof(unsigned char), MAX_BUFFERSIZE, reader->ifp);
+	reader->buffer[read_amount] = '\0';
+	reader->text_length = read_amount;
+	if (read_amount < MAX_BUFFERSIZE) {
+		//Return 1 if finished.
+		return 1; 
+	}
+	else {
+		return 0;
+	}
 }
 
-
-unsigned char* read_binary_file(char* filename) {
-	FILE *fp;
-	unsigned char* buffer;
-
-	/* Open file for both reading and writing */
-	fp = fopen(filename, "rb");
-	if (!fp) {
-		throw_error(FILE_ERROR);
+void write_char(textwriter* writer, char c) {
+	writer->buffer[writer->index++] = c;
+	if (writer->index == MAX_BUFFERSIZE) {
+		fwrite(writer->buffer, sizeof(char), MAX_BUFFERSIZE, writer->ofp);
+		writer->index = 0;
 	}
+}
 
-	fseek(fp, 0, SEEK_END);
-	unsigned int size = ftell(fp);
-
-	/* Seek to the beginning of the file */
-	rewind(fp);
-
-	buffer =(unsigned char*) allocate_memory(sizeof(unsigned char)*size + 1);
-
-	buffer[size] = '\0';
-	//buffer[size] = '\0';
-
-	/* Read and return data, we ignore the [ and ] */
-	fread(buffer, size, 1, fp);
-	fclose(fp);
-	return buffer; 
+void flush(textwriter* writer) {
+	fwrite(writer->buffer, sizeof(char), writer->index, writer->ofp);
 }
 
 bytewriter* init_bytewriter(char* filename) {
 	bytewriter* writer = (bytewriter*)allocate_memory(sizeof(bytewriter));
 	writer->remaining_bits = 8;
-	writer->buffersize = 100;  
 	writer->length = 0; 
 	writer->byte = 0;
 	writer->ofp = fopen(filename, "wb");
 	if (!writer->ofp) {
 		printf("The given file couldn't be opened. (File: %s)\n", filename);
 	}
-	writer->bytes = (unsigned char*)allocate_memory(sizeof(unsigned char)*writer->buffersize);
 	return writer;
 }
 
 bytereader* init_bytereader(char* filename) {
 	bytereader* reader = (bytereader*)allocate_memory(sizeof(bytereader));
 	reader->index = 0;
-	reader->remaining_bits_amount = 8;
-	reader->bytes = read_binary_file(filename);
+	reader->remaining_bits_amount = 8; 
+	reader->textreader = init_textreader(filename, "rb");
 	return reader;
+}
+
+textreader* init_textreader(char* filename, char* mode) {
+	textreader* reader = (textreader*)allocate_memory(sizeof(textreader));
+	reader->ifp = fopen(filename, mode);
+	fseek(reader->ifp, 0, SEEK_END);
+	reader->total_size = ftell(reader->ifp);
+	rewind(reader->ifp);
+	return reader; 
+}
+
+textwriter* init_textwriter(char* filename) {
+	textwriter* writer = (textwriter*)allocate_memory(sizeof(textwriter));
+	writer->ofp = fopen(filename, "wb");
+	writer->index = 0; 
+	return writer; 
+}
+
+void free_textreader(textreader* reader) {
+	fclose(reader->ifp);
+	free(reader);
 }
 
 void free_bytewriter(bytewriter* writer) {
@@ -135,34 +127,15 @@ void free_bytewriter(bytewriter* writer) {
 }
 
 void free_bytereader(bytereader* reader) {
-	free(reader->bytes);
+	free_textreader(reader->textreader);
 	free(reader);
 }
 
-void print_binary_file(char* filename) {
-	FILE *fp;
-	unsigned char* buffer;
-
-	/* Open file for both reading and writing */
-	fp = fopen(filename, "rb");
-
-	fseek(fp, 0, SEEK_END);
-	unsigned int size = ftell(fp);
-
-	/* Seek to the beginning of the file */
-	rewind(fp);
-
-	buffer = (unsigned char*)malloc(sizeof(unsigned char)*size + 1);
-
-	/* Read and return data, we ignore the [ and ] */
-	fread(buffer, size, 1, fp);
-	fclose(fp);
-	printf("--------\n");
-	for (unsigned int i = 0; i < size; i++) {
-		printf("%d\n", buffer[i]);
-	}
-	printf("--------\n");
+void free_textwriter(textwriter* writer) {
+	fclose(writer->ofp);
+	free(writer);
 }
+
 
 void write_tree_recurse(bytewriter* writer, node* n) {
 	if (n->left && n->right) {
@@ -191,17 +164,16 @@ void read_tree_recurse(bytereader* reader, node* n) {
 		n->right = NULL; 
 	}
 	else {
-		n->value = '\0';
-		n->left = (node*)malloc(sizeof(node));
-		n->right = (node*)malloc(sizeof(node));
+		n->left = (node*)allocate_memory(sizeof(node));
+		n->right = (node*)allocate_memory(sizeof(node));
 		read_tree_recurse(reader, n->left);
 		read_tree_recurse(reader, n->right);
 	}
 }
 
 tree* read_tree(bytereader* reader) {
-	tree* t = (tree*)malloc(sizeof(tree));
-	t->root = (node*)malloc(sizeof(node));
+	tree* t = (tree*)allocate_memory(sizeof(tree));
+	t->root = (node*)allocate_memory(sizeof(node));
 	read_tree_recurse(reader, t->root);
 	return t;
 }

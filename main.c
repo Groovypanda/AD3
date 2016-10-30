@@ -3,21 +3,21 @@
 #include "huffman_encode.h"
 #include "huffman_decode.h"
 
-#define MAX 4294967296//32 bits.
-#define MAX 124294967296
-#define MB_amount 500
+//#define MAX 4294967296//32 bits.
+//#define MAX 124294967296
+#define MB_amount 1
 
 void generate(char* filename);
 void shutdown(char* errormessage);
 
 int main(/*int argc, char* argv[]*/) {
-	char* input = "data/data2.txt";
-	generate(input);
-	generate(input, MAX);
+	char* input = "data/Opgave.pdf";
+	//generate(input);
 	char* encoded = "data/encoded"; 
 	encode(input, encoded);
+	printf("=============\n=============\n=============\n");
 	clock_t start = clock();
-	char* decoded = "data/decoded.txt";
+	char* decoded = "data/decoded.pdf";
 	decode(encoded, decoded);
 	/*
 	for (int i = 0; i < argc; i++) {
@@ -44,6 +44,7 @@ int main(/*int argc, char* argv[]*/) {
 	clock_t end = clock();
 	printf("\nThe program ran for a total of %.3f seconds.\n", TIME(end, start));
 	printf("The end of the program has been reached, press enter.\n");
+
 	getchar();
 	return 0; 
 }
