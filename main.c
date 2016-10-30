@@ -5,19 +5,18 @@
 
 //#define MAX 4294967296//32 bits.
 //#define MAX 124294967296
-#define MB_amount 1
+#define MB_amount 10000
 
 void generate(char* filename);
 void shutdown(char* errormessage);
 
 int main(/*int argc, char* argv[]*/) {
-	char* input = "data/pic.jpg";
-	//generate(input);
+	char* input = "data/data_very_very_long.txt";
+	generate(input);
 	char* encoded = "data/encoded"; 
 	encode(input, encoded);
-	printf("=============\n=============\n=============\n");
 	clock_t start = clock();
-	char* decoded = "data/decoded.jpg";
+	char* decoded = "data/decoded.txt";
 	decode(encoded, decoded);
 	/*
 	for (int i = 0; i < argc; i++) {
@@ -42,7 +41,7 @@ int main(/*int argc, char* argv[]*/) {
 	}
 	*/
 	clock_t end = clock();
-	printf("\nThe program ran for a total of %.3f seconds.\n", TIME(end, start));
+	printf("\nThe program ran for a total of %d seconds.\n", TIME(start, end));
 	printf("The end of the program has been reached, press enter.\n");
 
 	getchar();

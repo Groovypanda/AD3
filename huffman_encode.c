@@ -28,32 +28,31 @@ void huffman_encode(textreader* reader, bytewriter* writer) {
 }
 
 void encode(char* input, char* output) {
-	//clock_t start = clock();
-	unsigned long size;
+	clock_t start = clock();
+	unsigned original_size, encoded_size = 0; 
+
 	textreader* reader = init_textreader(input, "rb");
 	bytewriter* writer = init_bytewriter(output);
 	//While reading isn't finished, huffman encode.
 	
-	int block = 0;
 	while (!read_file(reader)) {
-		printf("Block %d\n", block++);
 		huffman_encode(reader, writer);
 	}
 	//One last time, to write last bytes. 
 	if (reader->text_length) {
-		printf("Block %d\n", block);
 		huffman_encode(reader, writer);
 	}
-	
-	size = reader->total_size;
+
+	original_size = reader->total_size;
+	encoded_size = ftell(writer->ofp);
 
 	free_bytewriter(writer);
 	free_textreader(reader);
 
-	//clock_t end = clock();
-	//print_statistics_compression(size, reader->total_size);
-	//print_statistics_time("Compression", start, end);
-	//print_statics_speed("Compression", start, end, size);
+	clock_t end = clock();
+	print_statistics_compression(original_size,encoded_size);
+	print_statistics_time("Compression", start, end);
+	print_statics_speed("Compression", start, end, original_size);
 	
 
 }

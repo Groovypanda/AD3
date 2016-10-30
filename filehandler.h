@@ -8,7 +8,7 @@
 #include "tree.h"
 
 
-#define MAX_BUFFERSIZE 16384 //buffersize of 1 KiB
+#define MAX_BUFFERSIZE 16384 //buffersize of 16 KiB
 
 typedef struct bytewriter {
 	FILE* ofp;
@@ -25,7 +25,7 @@ typedef struct bytewriter {
 typedef struct textreader {
 	unsigned long text_length; //length of current text; 
 	unsigned long total_size; //length of total text;
-	char buffer[MAX_BUFFERSIZE+1]; 
+	unsigned char buffer[MAX_BUFFERSIZE+1]; 
 	FILE* ifp;
 } textreader;
 

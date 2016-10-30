@@ -4,9 +4,26 @@
 
 int huffman_decode(bytereader* reader, textwriter* writer) {
 	textreader* textreader = reader->textreader;
-	unsigned long i = 0, text_length =0;
-	memcpy(&text_length, textreader->buffer+reader->index, sizeof(unsigned int));
-	reader->index += sizeof(unsigned int);
+	unsigned long i = 0, text_length = 0;
+	unsigned int amount = 0;
+	unsigned char number[4];
+	if (reader->index + 4 >= textreader->text_length) {
+		//Integer is formatted as little endian. 
+		for(unsigned int i = reader->index; i < textreader->text_length; i++) {
+			number[amount++] = textreader->buffer[i];
+		}
+		read_file(textreader);
+		reader->index = 0;
+		for (int i = 0; i < 4 - amount; i++) {
+			number[amount+i] = textreader->buffer[i];
+			reader->index++; 
+		}
+		memcpy(&text_length, number, sizeof(unsigned int));
+	}
+	else {
+		memcpy(&text_length, textreader->buffer + reader->index, sizeof(unsigned int));
+		reader->index += sizeof(unsigned int);
+	}
 	tree* t = read_tree(reader);
 	node* root = t->root;
 	node* cur = t->root;
@@ -31,24 +48,24 @@ int huffman_decode(bytereader* reader, textwriter* writer) {
 		reader->remaining_bits_amount = 8;
 		reader->index++;
 	}
-	return textreader->text_length < MAX_BUFFERSIZE; //IS THIS CORRECT? 
+	return textreader->text_length < MAX_BUFFERSIZE;  
 
 }
 
 void decode(char* input, char* output) {
-	time_t start = clock();
+	clock_t start = clock();
 	bytereader* reader = init_bytereader(input);
 	textwriter* writer = init_textwriter(output);
 	int finished = 0;
 	read_file(reader->textreader);
-	printf("Decoding\n");
 	int block = 0; 
 	while (!finished) {
-		printf("Block %d\n", block++);
+		block++;
 		finished = huffman_decode(reader, writer);
 	}
-	printf("Block %d\n", block++);
-	huffman_decode(reader, writer);
+	if (reader->index < reader->textreader->text_length) {
+		huffman_decode(reader, writer);
+	}
 	flush(writer);
 	free_bytereader(reader);
 	free_textwriter(writer);

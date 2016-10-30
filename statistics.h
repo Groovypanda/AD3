@@ -6,7 +6,7 @@
 #include "errorhandler.h"
 
 
-#define TIME(start, end) ((end - start)/CLOCKS_PER_SEC)
+#define TIME(start, end) ((((unsigned int)end) - ((unsigned int)start))/CLOCKS_PER_SEC)
 
 void print_statistics_time(char* title, clock_t start, clock_t end);
 void print_statics_speed(char* title, clock_t start, clock_t end, double size);
