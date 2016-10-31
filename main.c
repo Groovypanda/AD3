@@ -1,50 +1,41 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include "huffman_encode.h"
 #include "huffman_decode.h"
 
-//#define MAX 4294967296//32 bits.
-//#define MAX 124294967296
+#define DEBUG 1
 #define MB_amount 10000
 
 void generate(char* filename);
 void shutdown(char* errormessage);
 
-int main(/*int argc, char* argv[]*/) {
-	char* input = "data/data_very_very_long.txt";
-	generate(input);
-	char* encoded = "data/encoded"; 
-	encode(input, encoded);
-	clock_t start = clock();
-	char* decoded = "data/decoded.txt";
-	decode(encoded, decoded);
-	/*
-	for (int i = 0; i < argc; i++) {
-		printf("%d, %s\n", i, argv[i]);
-	}
-	if (argc!=4) {
-		printf("Error 1\n");
-		shutdown(ERROR);
-	}
-	else if (argv[1] == "-c") {
-		encode(argv[2], argv[3]);
-	}
-	else if (argv[1] == "-d") {
-		decode(argv[2], argv[3]);
-	}
-	else if (argv[1] == "-g") {
-		generate(argv[2], MAX-RAND_MAX);
+int main(int argc, char* argv[]) {
+	if (argc==1) {
+		char* input = "data/data_very_long.txt";
+		//generate(input);
+		char* encoded = "data/encoded";
+		encode(input, encoded);
+		char* decoded = "data/decoded.txt";
+		decode(encoded, decoded);
 	}
 	else {
-		printf("Error 2\n");
-		shutdown(ERROR);
+		if (argc != 4) {
+			shutdown(USAGE_ERROR);
+		}
+		else if (strcmp(argv[1], "-c") == 0) {
+			encode(argv[2], argv[3]);
+		}
+		else if (strcmp(argv[1], "-d") == 0) {
+			decode(argv[2], argv[3]);
+		}
+		else if (strcmp(argv[1], "-g") == 0) {
+			generate(argv[2]);
+		}
+		else {
+			shutdown(USAGE_ERROR);
+		}
 	}
-	*/
-	clock_t end = clock();
-	printf("\nThe program ran for a total of %d seconds.\n", TIME(start, end));
-	printf("The end of the program has been reached, press enter.\n");
-
-	getchar();
 	return 0; 
 }
 
@@ -53,12 +44,6 @@ void generate(char* filename) {
 
 	FILE* ofp = fopen(filename, "w");
 	fwrite("[", 1, 1, ofp);
-	/*
-	while (x < max) {
-		fprintf(ofp, "%llu", x);
-		fwrite(",", 1, 1, o	fp);
-		x += rand();
-	}*/
 	for (int i = 0; i < MB_amount*10000; i++) {
 		fprintf(ofp, "%llu", x);
 		fwrite(",", 1, 1, ofp);

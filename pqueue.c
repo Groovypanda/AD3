@@ -1,7 +1,6 @@
 #include "pqueue.h"
 
 //Source: Based on algorithms from https://en.wikipedia.org/wiki/Binary_heap
-void percolate_down(pqueue* p, int spot);
 
 void init_pqueue(pqueue* p) {
 	p->length = 0;
@@ -27,7 +26,7 @@ void push_pqueue(pqueue* p, tree* t) {
 	else {
 		if (p->length >= p->size) {
 			p->size *= 2;
-			p->list = (tree**)realloc(p->list, sizeof(tree*)*p->size);
+			p->list = (tree**)realloc(p->list, p->size*sizeof(tree*));
 			if (!p->list) {
 				throw_error(MEMORY_ERROR);
 			}
@@ -57,18 +56,17 @@ tree* pop_pqueue(pqueue* p) {
 		exit(-1);
 	}
 	tree* first = p->list[0];
-	//Make space for last element, afterwards we perculate down. 
+	//Make space for last element, afterwards we perculate down.
 	p->list[0] = p->list[--p->length];
 	p->list[p->length] = NULL;
 	percolate_down(p, 0);
 	return first;
-	//2de pop is fout momenteel? 
 }
 
-void percolate_down(pqueue* p, int spot) {
-	int left = 2 * spot + 1;
-	int right = 2 * spot + 2;
-	int smallest = spot;
+void percolate_down(pqueue* p, unsigned int spot) {
+	unsigned int left = 2 * spot + 1;
+	unsigned int right = 2 * spot + 2;
+	unsigned int smallest = spot;
 	if (left< p->length && p->list[smallest]->frequency > p->list[left]->frequency) {
 		smallest = left;
 	}

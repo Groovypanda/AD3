@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "errorhandler.h"
-#include "tree.h"
 
 
 #define MAX_BUFFERSIZE 16384 //buffersize of 16 KiB
@@ -43,9 +42,6 @@ typedef struct textwriter {
 	FILE* ofp; 
 } textwriter;
 
-void write_tree(bytewriter* writer, tree* t);
-
-tree* read_tree(bytereader* reader);
 
 int read_file(textreader* reader);
 

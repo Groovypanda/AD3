@@ -18,5 +18,6 @@ tree* pop_pqueue(pqueue* p);
 void push_pqueue(pqueue* p, tree* t);
 void print_pqueue(pqueue* p);
 void fill_pqueue(unsigned int* frequencies, pqueue* queue);
+void percolate_down(pqueue* p, unsigned int spot);
 
 #endif

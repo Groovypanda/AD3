@@ -14,7 +14,7 @@ int huffman_decode(bytereader* reader, textwriter* writer) {
 		}
 		read_file(textreader);
 		reader->index = 0;
-		for (int i = 0; i < 4 - amount; i++) {
+		for (unsigned int i = 0; i < 4 - amount; i++) {
 			number[amount+i] = textreader->buffer[i];
 			reader->index++; 
 		}

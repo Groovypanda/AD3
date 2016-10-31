@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "filehandler.h"
 #include "errorhandler.h"
 
 typedef struct node {
@@ -26,5 +27,9 @@ void print_tree(tree* t);
 void free_node(node* node);
 
 void free_tree(tree* t);
+
+void write_tree(bytewriter* writer, tree* t);
+
+tree* read_tree(bytereader* reader);
 
 #endif

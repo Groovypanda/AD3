@@ -23,14 +23,13 @@ void huffman_encode(textreader* reader, bytewriter* writer) {
 
 	//Free everything
 	free(frequencies);
-	free(codes);
+	free_code_list(codes);
 	free_tree(t);
 }
 
 void encode(char* input, char* output) {
 	clock_t start = clock();
 	unsigned original_size, encoded_size = 0; 
-
 	textreader* reader = init_textreader(input, "rb");
 	bytewriter* writer = init_bytewriter(output);
 	//While reading isn't finished, huffman encode.
@@ -42,7 +41,6 @@ void encode(char* input, char* output) {
 	if (reader->text_length) {
 		huffman_encode(reader, writer);
 	}
-
 	original_size = reader->total_size;
 	encoded_size = ftell(writer->ofp);
 
@@ -77,10 +75,13 @@ tree* build_tree(unsigned int* frequencies) {
 	init_pqueue(queue);
 	fill_pqueue(frequencies, queue);
 	while (queue->length > 1) {
-		push_pqueue(queue, merge_trees(pop_pqueue(queue), pop_pqueue(queue)));
+		tree* t1 = pop_pqueue(queue);
+		tree* t2 = pop_pqueue(queue);
+		push_pqueue(queue, merge_trees(t1, t2));
 	}
 	tree* t = pop_pqueue(queue);
 	//Queue is empty so can be freed. 
+	free(queue->list);
 	free(queue);
 	return t;
 }
@@ -99,7 +100,7 @@ void init_code(code_list** codes, node* currentnode, int currentcode, unsigned i
 		list->list_length = amount;
 		list->codes = (code*)allocate_memory(sizeof(code)*amount);
 		for (unsigned int i = 0; i < amount; i++) {
-			list->codes[i].code = currentcode & ((1 << 32) - 1);
+			list->codes[i].code = currentcode;
 			list->codes[i].code_length = 32;
 			currentcode >>= 32;
 		}
@@ -120,6 +121,16 @@ code_list** init_codes(tree* t) {
 	return codes; 
 }
 
+void free_code_list(code_list** codes) {
+	for (unsigned int i = 0; i < 256; i++) {
+		if (codes[i]->list_length) {
+			free(codes[i]->codes);
+		}
+		free(codes[i]);
+	}
+	free(codes);
+}
+
 void write_code_list(bytewriter* writer, code_list* list) {
 	for (unsigned int i = 0; i < list->list_length; i++) {
 		code c = list->codes[i];
@@ -129,7 +140,6 @@ void write_code_list(bytewriter* writer, code_list* list) {
 
 void print_byte(unsigned char byte) {
 	for (int i = 7; i >= 0; i--) {
-		//int bit = (i >> byte) & 1;
 		if ((1 << i) & byte) {
 			printf("1");
 		}

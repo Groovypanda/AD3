@@ -103,6 +103,9 @@ bytereader* init_bytereader(char* filename) {
 textreader* init_textreader(char* filename, char* mode) {
 	textreader* reader = (textreader*)allocate_memory(sizeof(textreader));
 	reader->ifp = fopen(filename, mode);
+	if (!reader->ifp) {
+		printf("The given file couldn't be opened. (File: %s)\n", filename);
+	}
 	fseek(reader->ifp, 0, SEEK_END);
 	reader->total_size = ftell(reader->ifp);
 	rewind(reader->ifp);
@@ -112,6 +115,9 @@ textreader* init_textreader(char* filename, char* mode) {
 textwriter* init_textwriter(char* filename) {
 	textwriter* writer = (textwriter*)allocate_memory(sizeof(textwriter));
 	writer->ofp = fopen(filename, "wb");
+	if (!writer->ofp) {
+		printf("The given file couldn't be opened. (File: %s)\n", filename);
+	}
 	writer->index = 0; 
 	return writer; 
 }
@@ -137,43 +143,3 @@ void free_textwriter(textwriter* writer) {
 }
 
 
-void write_tree_recurse(bytewriter* writer, node* n) {
-	if (n->left && n->right) {
-		write_bits(writer, 0, 1);
-		write_tree_recurse(writer, n->left);
-		write_tree_recurse(writer, n->right);
-	}
-	else {
-		write_bits(writer, 1, 1);
-		write_bits(writer, n->value, 8);	
-	}
-}
-
-void write_tree(bytewriter* writer, tree* t) {
-	if (t->root) {
-		write_tree_recurse(writer, t->root);
-	}
-}
-
-void read_tree_recurse(bytereader* reader, node* n) {
-	n->frequency = 0;
-	unsigned int bit = read_bits(reader, 1);
-	if (bit) {
-		n->value = read_bits(reader, 8);
-		n->left = NULL; 
-		n->right = NULL; 
-	}
-	else {
-		n->left = (node*)allocate_memory(sizeof(node));
-		n->right = (node*)allocate_memory(sizeof(node));
-		read_tree_recurse(reader, n->left);
-		read_tree_recurse(reader, n->right);
-	}
-}
-
-tree* read_tree(bytereader* reader) {
-	tree* t = (tree*)allocate_memory(sizeof(tree));
-	t->root = (node*)allocate_memory(sizeof(node));
-	read_tree_recurse(reader, t->root);
-	return t;
-}
