@@ -1,11 +1,11 @@
 #include "huffman_encode.h"
 
-void huffman_encode(textreader* reader, bytewriter* writer) {
+void huffman_encode(bytereader* reader, bitwriter* writer) {
 	unsigned int* frequencies = create_frequency_list(reader->buffer, reader->text_length);
 	tree* t = build_tree(frequencies);
 	code_list** codes = init_codes(t);
 
-	fwrite(&reader->text_length, sizeof(unsigned int), 1, writer->ofp);
+	fwrite(&reader->text_length, sizeof(unsigned int), 1, writer->bytewriter->ofp);
 	write_tree(writer, t);
 	for (unsigned long i = 0; i < reader->text_length; i++) {
 		unsigned char x = reader->buffer[i];
@@ -13,13 +13,7 @@ void huffman_encode(textreader* reader, bytewriter* writer) {
 	}
 
 	//Write out buffer
-	fwrite(writer->buffer, sizeof(unsigned char), writer->length, writer->ofp);
-	if (writer->remaining_bits) {
-		fwrite(&writer->byte, sizeof(unsigned char), 1, writer->ofp);
-	}
-	writer->byte = 0;
-	writer->length = 0;
-	writer->remaining_bits = 8;
+	flush_bits(writer);
 
 	//Free everything
 	free(frequencies);
@@ -30,11 +24,11 @@ void huffman_encode(textreader* reader, bytewriter* writer) {
 void encode(char* input, char* output) {
 	clock_t start = clock();
 	unsigned original_size, encoded_size = 0; 
-	textreader* reader = init_textreader(input, "rb");
-	bytewriter* writer = init_bytewriter(output);
+	bytereader* reader = init_bytereader(input, "rb");
+	bitwriter* writer = init_bitwriter(output);
 	//While reading isn't finished, huffman encode.
 	
-	while (!read_file(reader)) {
+	while (!read_bytes(reader)) {
 		huffman_encode(reader, writer);
 	}
 	//One last time, to write last bytes. 
@@ -42,10 +36,10 @@ void encode(char* input, char* output) {
 		huffman_encode(reader, writer);
 	}
 	original_size = reader->total_size;
-	encoded_size = ftell(writer->ofp);
+	encoded_size = ftell(writer->bytewriter->ofp);
 
-	free_bytewriter(writer);
-	free_textreader(reader);
+	free_bitwriter(writer);
+	free_bytereader(reader);
 
 	clock_t end = clock();
 	print_statistics_compression(original_size,encoded_size);
@@ -131,7 +125,7 @@ void free_code_list(code_list** codes) {
 	free(codes);
 }
 
-void write_code_list(bytewriter* writer, code_list* list) {
+void write_code_list(bitwriter* writer, code_list* list) {
 	for (unsigned int i = 0; i < list->list_length; i++) {
 		code c = list->codes[i];
 		write_bits(writer, c.code, c.code_length);

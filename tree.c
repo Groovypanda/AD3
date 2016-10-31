@@ -50,7 +50,7 @@ void free_tree(tree* t) {
 	free(t);
 }
 
-void write_tree_recurse(bytewriter* writer, node* n) {
+void write_tree_recurse(bitwriter* writer, node* n) {
 	if (n->left && n->right) {
 		write_bits(writer, 0, 1);
 		write_tree_recurse(writer, n->left);
@@ -62,13 +62,13 @@ void write_tree_recurse(bytewriter* writer, node* n) {
 	}
 }
 
-void write_tree(bytewriter* writer, tree* t) {
+void write_tree(bitwriter* writer, tree* t) {
 	if (t->root) {
 		write_tree_recurse(writer, t->root);
 	}
 }
 
-void read_tree_recurse(bytereader* reader, node* n) {
+void read_tree_recurse(bitreader* reader, node* n) {
 	n->frequency = 0;
 	unsigned int bit = read_bits(reader, 1);
 	if (bit) {
@@ -84,7 +84,7 @@ void read_tree_recurse(bytereader* reader, node* n) {
 	}
 }
 
-tree* read_tree(bytereader* reader) {
+tree* read_tree(bitreader* reader) {
 	tree* t = (tree*)allocate_memory(sizeof(tree));
 	t->root = (node*)allocate_memory(sizeof(node));
 	read_tree_recurse(reader, t->root);

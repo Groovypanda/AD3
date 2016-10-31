@@ -5,7 +5,7 @@
 #include <string.h>
 #include "tree.h"
 #include "pqueue.h"
-#include "filehandler.h"
+#include "bithandler.h"
 #include "errorhandler.h"
 //For testing purposes
 #include "statistics.h"
@@ -34,7 +34,7 @@ code_list** init_codes(tree* t);
 void free_code_list(code_list** codes);
 
 //Returns amount of written bits.
-void write_code_list(bytewriter* writer, code_list* list);
+void write_code_list(bitwriter* writer, code_list* list);
 
 void print_byte(unsigned char byte);
 
