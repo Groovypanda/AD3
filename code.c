@@ -1,13 +1,13 @@
 #include "code.h"
 
 void init_code(code* codes, node* currentnode, int* currentcode, unsigned int currentlength, unsigned int currentsize) {
-	if (currentnode->left && currentnode->right) {
-		currentlength++; 
-		if (currentlength % 32 == 0) { //1 int can't contain more than 32 bits. 
+	if (currentnode->left && currentnode->right) { 
+		if (currentlength && currentlength % 32 == 0) { //1 int can't contain more than 32 bits. 
 			currentsize++;
-			currentcode = (int*)realloc(currentcode, currentsize);
+			currentcode = (int*)realloc(currentcode, currentsize*sizeof(int));
 			currentcode[currentsize - 1] = 0;
 		}
+		currentlength++;
 		currentcode[currentsize - 1] <<= 1;
 		//Pass copy of pointer to child nodes. 
 		int* leftcode = (int*) allocate_memory(sizeof(int)*currentsize);
@@ -53,8 +53,14 @@ void free_codes(code* codes) {
 }
 
 void write_code(bitwriter* writer, code code) {
+	/*
 	write_bits(writer, code.value[code.size - 1], code.length % 32);
-	for (int i = code.size-2; i >= 0; i++) { //code is little endian, most significant bytes need to be written first. 
+	for (int i = code.size-2; i >= 0; i--) { //code is little endian, most significant bytes need to be written first. 
 		write_bits(writer, code.value[i], 32);
-	}	
+	}
+	*/
+	for (unsigned int i = 0; i < code.size - 1; i++) {
+		write_bits(writer, code.value[i], 32);
+	}
+	write_bits(writer, code.value[code.size - 1], code.length % 32);
 }

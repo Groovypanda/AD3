@@ -23,13 +23,14 @@ void huffman_encode(bytereader* reader, bitwriter* writer) {
 
 void encode(char* input, char* output) {
 	clock_t start = clock();
-	unsigned original_size, encoded_size = 0; 
+	unsigned long long original_size, encoded_size = 0; 
 	bytereader* reader = init_bytereader(input);
 	bitwriter* writer = init_bitwriter(output);
 	//While reading isn't finished, huffman encode.
 	
-	while (!read_bytes(reader)) {
+	while (!reader->lastblock) {
 		huffman_encode(reader, writer);
+		read_block(reader);
 	}
 	//One last time, to write last bytes. 
 	if (reader->text_length) {

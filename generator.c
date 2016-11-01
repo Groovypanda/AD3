@@ -48,7 +48,7 @@ void generate_extendedascii_file(char* filename) {
 	FILE* ofp = open_file(filename, "wb");
 	unsigned char byte = 0; 
 	for (int i = 0; i < 10000 * AMOUNT; i++) {
-		for (unsigned int j = 0; j <= byte; j++) {
+		for (unsigned int j = 0; j <= 1; j++) {
 			fwrite(&byte, 1, 1, ofp);
 		}
 		i += byte;

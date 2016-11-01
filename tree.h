@@ -75,7 +75,7 @@ tree* read_tree(bitreader* reader);
 	@param index The place of the node in the complete huffman tree. 
 	@param depth The depth of the node in the complete huffman tree.
 */
-void print_node(node* n, int index, int depth);
+void print_node(node* n, unsigned long index, int depth);
 
 /**
 	Prints a huffman tree to stdout.

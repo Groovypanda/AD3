@@ -16,4 +16,11 @@
 */
 int compare_file(char* filename1, char* filename2);
 
+/**
+	Compares the current block in the bytereaders.
+	@param reader1, reader2 The buffer which should be compared.
+	@return Returns 1 if the blocks are equal, 0 otherwise. 
+*/
+int compare_block(bytereader* reader1, bytereader* reader2);
+
 #endif 

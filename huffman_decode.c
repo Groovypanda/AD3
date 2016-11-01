@@ -2,7 +2,7 @@
 
 //This function decodes a huffman tree. 
 
-int huffman_decode(bitreader* reader, bytewriter* writer) {
+void huffman_decode(bitreader* reader, bytewriter* writer) {
 	bytereader* bytereader = reader->bytereader;
 	unsigned long i = 0, text_length = 0;
 	unsigned int amount = 0;
@@ -12,7 +12,7 @@ int huffman_decode(bitreader* reader, bytewriter* writer) {
 		for(unsigned int i = reader->index; i < bytereader->text_length; i++) {
 			number[amount++] = bytereader->buffer[i];
 		}
-		read_bytes(bytereader);
+		read_block(bytereader);
 		reader->index = 0;
 		for (unsigned int i = 0; i < 4 - amount; i++) {
 			number[amount+i] = bytereader->buffer[i];
@@ -52,20 +52,14 @@ int huffman_decode(bitreader* reader, bytewriter* writer) {
 		reader->remaining_bits = 8;
 		reader->index++;
 	}
-	return bytereader->text_length < MAX_BUFFERSIZE;  
-
 }
 
 void decode(char* input, char* output) {
 	clock_t start = clock();
 	bitreader* reader = init_bitreader(input);
 	bytewriter* writer = init_bytewriter(output);
-	int finished = 0;
-	read_bytes(reader->bytereader);
-	int block = 0; 
-	while (!finished) { //Read all of the file buffer by buffer. Finished = 1 if last buffer has been reached. 
-		block++;
-		finished = huffman_decode(reader, writer);
+	while (!reader->bytereader->lastblock) { //Read all of the file buffer by buffer. Finished = 1 if last buffer has been reached. 
+		huffman_decode(reader, writer);
 	}
 	while (reader->index < reader->bytereader->text_length) { //Read remaining text in buffer of the bytereader. 
 		huffman_decode(reader, writer);

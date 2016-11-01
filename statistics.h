@@ -32,13 +32,13 @@ void print_statistics_time(char* title, clock_t start, clock_t end);
 	@param end The amount of clock ticks at the end of a function.
 	@param size The size of the (de)compressed file. 
 */
-void print_statics_speed(char* title, clock_t start, clock_t end, double size);
+void print_statics_speed(char* title, clock_t start, clock_t end, unsigned long long size);
 
 /**
 	Print statistics about compression.
 	@param original The original size of a file.
 	@param encoded The compressed size of a file.
 */
-void print_statistics_compression(int original, int encoded);
+void print_statistics_compression(unsigned long long original, unsigned long long encoded);
 
 #endif

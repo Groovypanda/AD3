@@ -2,17 +2,11 @@
 
 //Places text which is read into reader->text.
 //Specify amount of bytes to be read in reader->amount_to_read, total amount of bytes which are read are updated into reader->length.
-int read_bytes(bytereader* reader) {
+void read_block(bytereader* reader) {
 	size_t read_amount = fread(reader->buffer, sizeof(unsigned char), MAX_BUFFERSIZE, reader->ifp);
 	reader->buffer[read_amount] = '\0';
 	reader->text_length = read_amount;
-	if (read_amount < MAX_BUFFERSIZE) {
-		//Return 1 if finished.
-		return 1;
-	}
-	else {
-		return 0;
-	}
+	reader->lastblock = read_amount < MAX_BUFFERSIZE; 
 }
 
 void write_byte(bytewriter* writer, char c) {
@@ -34,6 +28,7 @@ bytereader* init_bytereader(char* filename) {
 	fseek(reader->ifp, 0, SEEK_END);
 	reader->total_size = ftell(reader->ifp);
 	rewind(reader->ifp);
+	read_block(reader); //Reads the first block immediately. 
 	return reader;
 }
 

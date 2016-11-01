@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "bytehandler.h"
 #include "tree.h"
 #include "errorhandler.h"
@@ -25,8 +26,7 @@ void decode(char* input, char* output);
 	This function takes one block at decodes the block. 
 	@param reader A bitreader which reads the bits from the input file. 
 	@param writer A bytewriter which writes the bytes to the output file.
-	@return Returns if the current block in the bytereader of the bitreader is the last block. 
 */
-int huffman_decode(bitreader* reader, bytewriter* writer);
+void huffman_decode(bitreader* reader, bytewriter* writer);
 
 #endif

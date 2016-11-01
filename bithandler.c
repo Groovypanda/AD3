@@ -39,7 +39,7 @@ unsigned int read_bits(bitreader* reader, unsigned int amount) {
 		if (!reader->remaining_bits) {
 			reader->index++; 
 			if (reader->index == MAX_BUFFERSIZE) {
-				read_bytes(reader->bytereader);
+				read_block(reader->bytereader);
 				reader->index = 0;
 			}
 			byte = bytereader->buffer[reader->index];

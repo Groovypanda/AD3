@@ -10,15 +10,17 @@
 #include <stdlib.h>
 #include "errorhandler.h"
 
-#define MAX_BUFFERSIZE 1024*8 //buffersize of n KiB
+//#define MAX_BUFFERSIZE 1024*1024*32 //buffersize of n KiB
+#define MAX_BUFFERSIZE 1024*8
 
 /**
 	Struct used for reading bytes from a file. 
 */
 typedef struct bytereader {
-	unsigned long text_length; //length of current text.
-	unsigned long total_size; //length of total text.
+	unsigned int text_length; //length of current text.
+	unsigned long long total_size; //length of total text.
 	unsigned char buffer[MAX_BUFFERSIZE + 1]; //buffer which contains a part of the content of ifp.
+	int lastblock; //Specifies if the last block of the input file is in the buffer.
 	FILE* ifp; //File from which bytes will be read. 
 } bytereader;
 
@@ -32,11 +34,10 @@ typedef struct bytewriter {
 } bytewriter;
 
 /**
-	Reads maximum MAX_BUFFERSIZE bytes from the file in bytereader. 
+	Reads maximum MAX_BUFFERSIZE bytes from the file in bytereader. If the last block is reached, 1 is placed into last_block.
 	@param reader The bytereader which will be read the bytes. 
-	@return the actual amount of bytes read.  
 */
-int read_bytes(bytereader* reader);
+void read_block(bytereader* reader);
 
 /**
 	Write a byte to the given bytewriter.
