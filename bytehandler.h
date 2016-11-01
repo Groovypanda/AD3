@@ -29,7 +29,7 @@ typedef struct bytereader {
 */
 typedef struct bytewriter {
 	unsigned long index; //index in buffer, also specifies how many bytes in buffer are filled. 
-	char buffer[MAX_BUFFERSIZE]; //buffer which contains the bytes which ought to be written. 
+	char buffer[MAX_BUFFERSIZE + 1]; //buffer which contains the bytes which ought to be written. 
 	FILE* ofp; //File to which bytes will be written. 
 } bytewriter;
 

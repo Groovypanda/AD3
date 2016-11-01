@@ -36,6 +36,7 @@ bytewriter* init_bytewriter(char* filename) {
 	bytewriter* writer = (bytewriter*)allocate_memory(sizeof(bytewriter));
 	writer->ofp = open_file(filename, "wb");
 	writer->index = 0;
+	writer->buffer[MAX_BUFFERSIZE] = '\0';
 	return writer;
 }
 

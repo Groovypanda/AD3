@@ -4,28 +4,9 @@
 
 void huffman_decode(bitreader* reader, bytewriter* writer) {
 	bytereader* bytereader = reader->bytereader;
-	unsigned int i = 0, text_length = 0;
-	unsigned int amount = 0;
-	unsigned char number[4];
-	if (reader->index + 4 >= bytereader->text_length) {
-		//Integer is formatted as little endian. 
-		for(unsigned int i = reader->index; i < bytereader->text_length; i++) {
-			number[amount++] = bytereader->buffer[i];
-		}
-		read_block(bytereader);
-		reader->index = 0;
-		for (unsigned int i = 0; i < 4 - amount; i++) {
-			number[amount+i] = bytereader->buffer[i];
-			reader->index++; 
-		}
-		memcpy(&text_length, number, sizeof(unsigned int));
-	}
-	else {
-		memcpy(&text_length, bytereader->buffer + reader->index, sizeof(unsigned int));
-		reader->index += sizeof(unsigned int);
-	}
+	unsigned int i = 0;
+	unsigned int text_length = read_bits(reader, 32);
 	tree* t = read_tree(reader);
-	print_tree(t);
 	node* root = t->root;
 	node* cur = t->root;
 	while (i < text_length) {
@@ -48,10 +29,12 @@ void huffman_decode(bitreader* reader, bytewriter* writer) {
 		}
 	}
 	free_tree(t);
+	/*
 	if (reader->remaining_bits) {
 		reader->remaining_bits = 8;
 		reader->index++;
 	}
+	*/
 }
 
 void decode(char* input, char* output) {

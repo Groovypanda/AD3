@@ -14,10 +14,10 @@ void shutdown(char* errormessage);
 int main(int argc, char* argv[]) {
 	if (argc==1) {
 		printf("As there are no arguments, the program will be tested:\n");
-		char* input = "data/fibo.txt";
+		char* input = "data/data_long.txt";
 		//generate_fibonacci_file(input);
 		char* encoded = "data/encoded";
-		char* decoded = "data/decoded/fiboo.txt";
+		char* decoded = "data/decoded/data_long.txt";
 		encode(input, encoded);
 		decode(encoded, decoded);
 		int equal = compare_file(input, decoded);

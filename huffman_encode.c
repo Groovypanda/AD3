@@ -3,17 +3,14 @@
 void huffman_encode(bytereader* reader, bitwriter* writer) {
 	unsigned int* frequencies = create_frequency_list(reader->buffer, reader->text_length);
 	tree* t = build_huffmantree(frequencies);
-	print_tree(t);
 	code* codes = init_codes(t);
-	fwrite(&reader->text_length, sizeof(unsigned int), 1, writer->bytewriter->ofp);
+	write_bits(writer, reader->text_length, 8*sizeof(unsigned int));
 	write_tree(writer, t);
+
 	for (unsigned int i = 0; i < reader->text_length; i++) {
 		unsigned char x = reader->buffer[i];
 		write_code(writer, codes[x]);
 	}
-
-	//Write out buffer
-	flush_bits(writer);
 
 	//Free everything
 	free(frequencies);
@@ -36,6 +33,8 @@ void encode(char* input, char* output) {
 	if (reader->text_length) {
 		huffman_encode(reader, writer);
 	}
+
+	flush_bits(writer);
 	original_size = reader->total_size;
 	encoded_size = ftell(writer->bytewriter->ofp);
 

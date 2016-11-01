@@ -53,7 +53,7 @@ unsigned int read_bits(bitreader* reader, unsigned int amount) {
 void flush_bits(bitwriter* writer) {
 	bytewriter* bytewriter = writer->bytewriter;
 	flush_bytes(bytewriter);
-	if (writer->remaining_bits) {
+	if (writer->remaining_bits!=8) {
 		fwrite(&writer->byte, sizeof(unsigned char), 1, bytewriter->ofp);
 	}
 	writer->byte = 0;
