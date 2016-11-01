@@ -4,7 +4,7 @@
 
 void huffman_decode(bitreader* reader, bytewriter* writer) {
 	bytereader* bytereader = reader->bytereader;
-	unsigned long i = 0, text_length = 0;
+	unsigned int i = 0, text_length = 0;
 	unsigned int amount = 0;
 	unsigned char number[4];
 	if (reader->index + 4 >= bytereader->text_length) {
@@ -25,7 +25,7 @@ void huffman_decode(bitreader* reader, bytewriter* writer) {
 		reader->index += sizeof(unsigned int);
 	}
 	tree* t = read_tree(reader);
-	//print_tree(t);
+	print_tree(t);
 	node* root = t->root;
 	node* cur = t->root;
 	while (i < text_length) {
