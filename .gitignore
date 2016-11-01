@@ -3,4 +3,4 @@
 !.gitignore
 !*.h
 !*.c
-!verslag/*
+!/verslag/
