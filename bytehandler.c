@@ -28,12 +28,9 @@ void flush_bytes(bytewriter* writer) {
 	writer->index = 0; 
 }
 
-bytereader* init_bytereader(char* filename, char* mode) {
+bytereader* init_bytereader(char* filename) {
 	bytereader* reader = (bytereader*)allocate_memory(sizeof(bytereader));
-	reader->ifp = fopen(filename, mode);
-	if (!reader->ifp) {
-		printf("The given file couldn't be opened. (File: %s)\n", filename);
-	}
+	reader->ifp = open_file(filename, "rb");  
 	fseek(reader->ifp, 0, SEEK_END);
 	reader->total_size = ftell(reader->ifp);
 	rewind(reader->ifp);
@@ -42,10 +39,7 @@ bytereader* init_bytereader(char* filename, char* mode) {
 
 bytewriter* init_bytewriter(char* filename) {
 	bytewriter* writer = (bytewriter*)allocate_memory(sizeof(bytewriter));
-	writer->ofp = fopen(filename, "wb");
-	if (!writer->ofp) {
-		printf("The given file couldn't be opened. (File: %s)\n", filename);
-	}
+	writer->ofp = open_file(filename, "wb");
 	writer->index = 0;
 	return writer;
 }

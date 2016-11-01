@@ -13,3 +13,12 @@ void* allocate_memory(int size) {
 	}
 	return memory;
 }
+
+FILE* open_file(char* filename, char* mode) {
+	FILE* file = fopen(filename, mode);
+	if (!file) {
+		printf("The file %s couldn't be opened.", filename);
+		throw_error("");
+	}
+	return file; 
+}

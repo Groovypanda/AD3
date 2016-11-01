@@ -2,14 +2,13 @@
 
 void huffman_encode(bytereader* reader, bitwriter* writer) {
 	unsigned int* frequencies = create_frequency_list(reader->buffer, reader->text_length);
-	tree* t = build_tree(frequencies);
-	code_list** codes = init_codes(t);
-
+	tree* t = build_huffmantree(frequencies);
+	code* codes = init_codes(t);
 	fwrite(&reader->text_length, sizeof(unsigned int), 1, writer->bytewriter->ofp);
 	write_tree(writer, t);
 	for (unsigned long i = 0; i < reader->text_length; i++) {
 		unsigned char x = reader->buffer[i];
-		write_code_list(writer, codes[x]);
+		write_code(writer, codes[x]);
 	}
 
 	//Write out buffer
@@ -17,14 +16,14 @@ void huffman_encode(bytereader* reader, bitwriter* writer) {
 
 	//Free everything
 	free(frequencies);
-	free_code_list(codes);
+	free_codes(codes);
 	free_tree(t);
 }
 
 void encode(char* input, char* output) {
 	clock_t start = clock();
 	unsigned original_size, encoded_size = 0; 
-	bytereader* reader = init_bytereader(input, "rb");
+	bytereader* reader = init_bytereader(input);
 	bitwriter* writer = init_bitwriter(output);
 	//While reading isn't finished, huffman encode.
 	
@@ -64,7 +63,7 @@ unsigned int* create_frequency_list(char* text, unsigned int length) {
 	return frequencies;
 }
 
-tree* build_tree(unsigned int* frequencies) {
+tree* build_huffmantree(unsigned int* frequencies) {
 	pqueue* queue = (pqueue*)allocate_memory(sizeof(pqueue));
 	init_pqueue(queue);
 	fill_pqueue(frequencies, queue);
@@ -80,57 +79,7 @@ tree* build_tree(unsigned int* frequencies) {
 	return t;
 }
 
-void init_code(code_list** codes, node* currentnode, int currentcode, unsigned int currentlength) {
-	if (currentnode->left && currentnode->right) {
-		currentcode <<= 1;
-		currentlength++;
-		init_code(codes, currentnode->left, currentcode, currentlength);
-		currentcode |= 1;
-		init_code(codes, currentnode->right, currentcode, currentlength);
-	}
-	else {
-		unsigned int amount = currentlength / 32 + 1;
-		code_list* list = codes[currentnode->value];
-		list->list_length = amount;
-		list->codes = (code*)allocate_memory(sizeof(code)*amount);
-		for (unsigned int i = 0; i < amount; i++) {
-			list->codes[i].code = currentcode;
-			list->codes[i].code_length = 32;
-			currentcode >>= 32;
-		}
-		list->codes[amount - 1].code_length = currentlength % 32;
-		codes[currentnode->value] = list;
-	}
-}
 
-//Edits currentmax
-code_list** init_codes(tree* t) {
-	//For every value, 1 code_list.
-	code_list** codes = (code_list**)allocate_memory(sizeof(code_list*) * 256);
-	for (unsigned int i = 0; i < 256; i++) {
-		codes[i] = (code_list*)allocate_memory(sizeof(code_list));
-		codes[i]->list_length = 0;
-	}
-	init_code(codes, t->root, 0, 0);
-	return codes; 
-}
-
-void free_code_list(code_list** codes) {
-	for (unsigned int i = 0; i < 256; i++) {
-		if (codes[i]->list_length) {
-			free(codes[i]->codes);
-		}
-		free(codes[i]);
-	}
-	free(codes);
-}
-
-void write_code_list(bitwriter* writer, code_list* list) {
-	for (unsigned int i = 0; i < list->list_length; i++) {
-		code c = list->codes[i];
-		write_bits(writer, c.code, c.code_length);
-	}
-}
 
 void print_byte(unsigned char byte) {
 	for (int i = 7; i >= 0; i--) {

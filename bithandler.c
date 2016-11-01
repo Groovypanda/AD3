@@ -31,18 +31,19 @@ unsigned int read_bits(bitreader* reader, unsigned int amount) {
 	unsigned char byte = bytereader->buffer[reader->index];
 	for (unsigned int i = 0; i < amount; i++) {
 		//Get nth bit of byte.
-		unsigned int i = reader->remaining_bits_amount - 1;
+		unsigned int i = reader->remaining_bits - 1;
 		int bit = (byte >> i) & 1;
 		//Set nth bit of result.
 		result |= bit;
-		reader->remaining_bits_amount--;
-		if (!reader->remaining_bits_amount) {
-			byte = bytereader->buffer[++reader->index];
-			reader->remaining_bits_amount = 8;
+		reader->remaining_bits--;
+		if (!reader->remaining_bits) {
+			reader->index++; 
 			if (reader->index == MAX_BUFFERSIZE) {
 				read_bytes(reader->bytereader);
 				reader->index = 0;
 			}
+			byte = bytereader->buffer[reader->index];
+			reader->remaining_bits = 8;
 		}
 		result <<= 1;
 	}
@@ -70,8 +71,8 @@ bitwriter* init_bitwriter(char* filename) {
 bitreader* init_bitreader(char* filename) {
 	bitreader* reader = (bitreader*)allocate_memory(sizeof(bitreader));
 	reader->index = 0;
-	reader->remaining_bits_amount = 8;
-	reader->bytereader = init_bytereader(filename, "rb");
+	reader->remaining_bits = 8;
+	reader->bytereader = init_bytereader(filename);
 	return reader;
 }
 

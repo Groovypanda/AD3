@@ -12,7 +12,6 @@ tree* merge_trees(tree* t1, tree* t2) {
 	return t;
 }
 
-
 void print_tree(tree* t) {
 	if (t->root) {
 		print_node(t->root, 0, 0);

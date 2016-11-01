@@ -38,14 +38,17 @@ int huffman_decode(bitreader* reader, bytewriter* writer) {
 			}
 		}
 		else {
-			i++;
+			i++; 
+			if (cur == root) {
+				read_bits(reader, 1);
+			}
 			write_byte(writer, cur->value);
 			cur = root;
 		}
 	}
 	free_tree(t);
-	if (reader->remaining_bits_amount) {
-		reader->remaining_bits_amount = 8;
+	if (reader->remaining_bits) {
+		reader->remaining_bits = 8;
 		reader->index++;
 	}
 	return bytereader->text_length < MAX_BUFFERSIZE;  

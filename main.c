@@ -1,23 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "huffman_encode.h"
 #include "huffman_decode.h"
+#include "generator.h"
+#include "filecomparator.h"
 
 #define DEBUG 1
-#define MB_amount 10000
+#define MB_AMOUNT 10000
 
-void generate(char* filename);
+
 void shutdown(char* errormessage);
 
 int main(int argc, char* argv[]) {
 	if (argc==1) {
-		char* input = "data/data_very_long.txt";
-		//generate(input);
+		printf("As there are no arguments, the program will be tested.\n");
+		char* input = "data/picture.jpg";
+		//generate_extendedascii_file(input);
 		char* encoded = "data/encoded";
+		char* decoded = "data/decoded/picture.jpg";
 		encode(input, encoded);
-		char* decoded = "data/decoded.txt";
 		decode(encoded, decoded);
+		int equal = compare_file(input, decoded);
+		if (equal) {
+			printf("The files are equal.");
+		}
+		else {
+			printf("The files aren't equal.");
+		}
+		getchar(); 
 	}
 	else {
 		if (argc != 4) {
@@ -30,7 +40,7 @@ int main(int argc, char* argv[]) {
 			decode(argv[2], argv[3]);
 		}
 		else if (strcmp(argv[1], "-g") == 0) {
-			generate(argv[2]);
+			generate_json_file(argv[2], MB_AMOUNT);
 		}
 		else {
 			shutdown(USAGE_ERROR);
@@ -39,20 +49,7 @@ int main(int argc, char* argv[]) {
 	return 0; 
 }
 
-void generate(char* filename) {
-	unsigned long long x = rand();
 
-	FILE* ofp = fopen(filename, "w");
-	fwrite("[", 1, 1, ofp);
-	for (int i = 0; i < MB_amount*10000; i++) {
-		fprintf(ofp, "%llu", x);
-		fwrite(",", 1, 1, ofp);
-		x += rand();
-	}
-	fprintf(ofp, " %llu", x);
-	fwrite("]", 1, 1, ofp);
-	fclose(ofp);
-}
 
 void shutdown(char* errormessage) {
 	printf("%s\nPress enter to close the program.\n", errormessage);
