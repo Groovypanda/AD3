@@ -1,5 +1,5 @@
-#ifndef HUFFMAN_DECODE_H
-#define HUFFMAN_DECODE_H
+#ifndef HUFFMAN_DEcode_H
+#define HUFFMAN_DEcode_H
 
 /**
 	huffman_decode.h

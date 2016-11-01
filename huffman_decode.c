@@ -64,12 +64,13 @@ void decode(char* input, char* output) {
 		}
 		huffman_decode(reader, writer);
 	}
+	unsigned long long decoded_size = ftell(writer->ofp);
 	flush_bytes(writer);
 	free_bitreader(reader);
 	free_bytewriter(writer);
 	clock_t end = clock();
 	if (STATISTICS) {
 		print_statistics_time("Decompression", start, end);
-		print_statics_speed("Compression", start, end, reader->bytereader->total_size);
+		print_statics_speed("Decompression", start, end, decoded_size);
 	}
 }

@@ -1,5 +1,5 @@
-#ifndef CODE_H
-#define CODE_H
+#ifndef code_H
+#define code_H
 
 /**
 	codelist.h
