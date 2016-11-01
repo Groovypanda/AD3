@@ -55,3 +55,9 @@ void generate_extendedascii_file(char* filename) {
 		byte++; 
 	}
 }
+
+void shutdown(char* errormessage) {
+	printf("%s\nPress enter to close the program.\n", errormessage);
+	getchar();
+	exit(-1);
+}

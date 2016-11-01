@@ -13,6 +13,7 @@
 #include "tree.h"
 #include "errorhandler.h"
 #include "statistics.h"
+#include "debug.h"
 
 /**
 	Decode an input file which was compressed by huffman_encode.h

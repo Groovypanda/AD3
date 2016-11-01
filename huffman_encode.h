@@ -15,6 +15,7 @@
 #include "pqueue.h"
 //For testing purposes
 #include "statistics.h"
+#include "debug.h"
 
 /**
 	Encodes the given file with the huffman encoding algorithm, places the encoded content into the given file. 

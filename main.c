@@ -5,19 +5,16 @@
 #include "generator.h"
 #include "filecomparator.h"
 
-#define DEBUG 1
+#include "debug.h"
 #define MB_AMOUNT 10000
 
-
-void shutdown(char* errormessage);
-
 int main(int argc, char* argv[]) {
-	if (argc==1) {
+	if (DEBUG) {
 		printf("As there are no arguments, the program will be tested:\n");
-		char* input = "data/data_very_long.txt";
+		char* input = "data/fibo.txt";
 		//generate_fibonacci_file(input);
 		char* encoded = "data/encoded";
-		char* decoded = "data/decoded/data_very_long.txt";
+		char* decoded = "data/decoded/fiboo.txt";
 		encode(input, encoded);
 		decode(encoded, decoded);
 		int equal = compare_file(input, decoded);
@@ -51,8 +48,4 @@ int main(int argc, char* argv[]) {
 
 
 
-void shutdown(char* errormessage) {
-	printf("%s\nPress enter to close the program.\n", errormessage);
-	getchar();
-	exit(-1);
-}
+

@@ -32,4 +32,10 @@ void* allocate_memory(int size);
 */
 FILE* open_file(char* filename, char* mode);
 
+/**
+	Close the program with the given error message. 
+	@param errormessage This message is thrown before closing. 
+*/
+void shutdown(char* errormessage);
+
 #endif
