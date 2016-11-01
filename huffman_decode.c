@@ -25,6 +25,7 @@ int huffman_decode(bitreader* reader, bytewriter* writer) {
 		reader->index += sizeof(unsigned int);
 	}
 	tree* t = read_tree(reader);
+	//print_tree(t);
 	node* root = t->root;
 	node* cur = t->root;
 	while (i < text_length) {
@@ -62,11 +63,11 @@ void decode(char* input, char* output) {
 	int finished = 0;
 	read_bytes(reader->bytereader);
 	int block = 0; 
-	while (!finished) {
+	while (!finished) { //Read all of the file buffer by buffer. Finished = 1 if last buffer has been reached. 
 		block++;
 		finished = huffman_decode(reader, writer);
 	}
-	if (reader->index < reader->bytereader->text_length) {
+	while (reader->index < reader->bytereader->text_length) { //Read remaining text in buffer of the bytereader. 
 		huffman_decode(reader, writer);
 	}
 	flush_bytes(writer);

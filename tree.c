@@ -15,6 +15,7 @@ tree* merge_trees(tree* t1, tree* t2) {
 void print_tree(tree* t) {
 	if (t->root) {
 		print_node(t->root, 0, 0);
+		printf("===============\n===============\n");
 	}
 	else {
 		printf("The tree is completely empty");
@@ -22,14 +23,14 @@ void print_tree(tree* t) {
 }
 
 
-void print_node(node* n, int index, int depth) {
+void print_node(node* n, unsigned long index, int depth) {
 	if (n->left && n->right) {
-		printf("Node  %d (%d)\n", index, depth);
+		printf("Node  %lu (%d)\n", index, depth);
 		print_node(n->left, 2 * index + 1, depth+1);
 		print_node(n->right, 2 * index + 2, depth+1);
 	}
 	else {
-		printf("Leaf %d (%d) has value %d\n", index, depth, n->value);
+		printf("Leaf %lu (%d) has value %d and frequency %d\n", index, depth, n->value, n->frequency);
 	}
 
 }

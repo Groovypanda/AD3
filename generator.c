@@ -25,25 +25,21 @@ void generate_zeros_file(char* filename) {
 }
 
 void generate_fibonacci_file(char* filename) {
-	unsigned char previous = 0;
-	unsigned char current = 1; 
-	unsigned char next = 0;
+	unsigned long previous = 0;
+	unsigned long current = 1; 
+	unsigned long next = 0;
+	unsigned char byte = 0; 
 	int finished = 0; 
 	FILE* ofp = open_file(filename, "wb");
-	fwrite(&previous, 1, 1, ofp);
-	fwrite(&current, 1, 1, ofp);
-	while (!finished) {
+	for(unsigned long i=0; i<10000*AMOUNT; i++) {
 		previous = current; 
 		current = next; 
 		next = previous + current;
-		if (((int)previous + (int)current) > next) {
-			finished = 1;
+		for (unsigned long i = 0; i < current; i++) {
+			fwrite(&byte, 1, 1, ofp);
 		}
-		else {
-			for (unsigned char i = 0; i < current; i++) {
-				fwrite(&current, 1, 1, ofp);
-			}
-		}
+		byte++; 
+		i += current;
 	}
 	fclose(ofp);
 }
