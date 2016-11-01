@@ -10,20 +10,29 @@
 
 int main(int argc, char* argv[]) {
 	if (DEBUG) {
-		printf("As there are no arguments, the program will be tested:\n");
-		char* input = "data/fibo.txt";
+		printf("					DEBUG MODE\n");
+		char* input = "data/data_very_very_long.txt";
 		//generate_fibonacci_file(input);
 		char* encoded = "data/encoded";
-		char* decoded = "data/decoded/fiboo.txt";
+		char* decoded = "data/decoded/data_very_very_long.txt";
+		if (OUTPUT || STATISTICS) {
+			printf("==========================================================================================================\n					ENCODING:\n==========================================================================================================\n");
+		}
 		encode(input, encoded);
+		if (OUTPUT || STATISTICS) {
+			printf("==========================================================================================================\n					DECODING:\n==========================================================================================================\n");
+		}
 		decode(encoded, decoded);
-		int equal = compare_file(input, decoded);
-		if (equal) {
-			printf("The files are equal");
+		if (COMPARE) {
+			int equal = compare_file(input, decoded);
+			if (equal) {
+				printf("The files are equal");
+			}
+			else {
+				printf("The files aren't equal");
+			}
 		}
-		else {
-			printf("The files aren't equal");
-		}
+		printf("\n\nDebugging finished. Press enter.");
 		getchar(); 
 	}
 	else {
@@ -35,9 +44,6 @@ int main(int argc, char* argv[]) {
 		}
 		else if (strcmp(argv[1], "-d") == 0) {
 			decode(argv[2], argv[3]);
-		}
-		else if (strcmp(argv[1], "-g") == 0) {
-			generate_json_file(argv[2], MB_AMOUNT);
 		}
 		else {
 			shutdown(USAGE_ERROR);

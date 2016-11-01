@@ -5,16 +5,16 @@ void huffman_encode(bytereader* reader, bitwriter* writer) {
 	tree* t = build_huffmantree(frequencies);
 	
 	code* codes = init_codes(t);
-	if (reader->text_length == MAX_BUFFERSIZE) {
+	if (reader->text_length == MAX_BUFFERSIZE) { //Write 0 if length equals MAX_BUFFERSIZE
 		write_bits(writer, 0, 1);
 	}
 	else {
-		write_bits(writer, 1, 1);
+		write_bits(writer, 1, 1); //Writes 1 and length if length doesn't equal MAX_BUFFERSIZE
 		write_bits(writer, reader->text_length, 8 * sizeof(unsigned int));
 	}
 	if (OUTPUT) {
 		printf("Text length: %d\n", reader->text_length);
-		if (OUTPUTTREE) {
+		if (TREE) {
 			print_tree(t);
 		}
 	}
@@ -61,11 +61,11 @@ void encode(char* input, char* output) {
 	free_bytereader(reader);
 
 	clock_t end = clock();
-	print_statistics_compression(original_size,encoded_size);
-	print_statistics_time("Compression", start, end);
-	print_statics_speed("Compression", start, end, original_size);
-	
-
+	if (STATISTICS) {
+		print_statistics_compression(original_size, encoded_size);
+		print_statistics_time("Compression", start, end);
+		print_statics_speed("Compression", start, end, original_size);
+	}
 }
 
 unsigned int* create_frequency_list(char* text, unsigned int length) {

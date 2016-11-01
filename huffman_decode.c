@@ -20,7 +20,7 @@ void huffman_decode(bitreader* reader, bytewriter* writer) {
 			printf("Press enter to continue.\n");
 			getchar();
 		}
-		if (OUTPUTTREE) {
+		if (TREE) {
 			print_tree(t);
 		}
 	}
@@ -68,6 +68,8 @@ void decode(char* input, char* output) {
 	free_bitreader(reader);
 	free_bytewriter(writer);
 	clock_t end = clock();
-	print_statistics_time("Decompression", start, end);
-	
+	if (STATISTICS) {
+		print_statistics_time("Decompression", start, end);
+		print_statics_speed("Compression", start, end, reader->bytereader->total_size);
+	}
 }
