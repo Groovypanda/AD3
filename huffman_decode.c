@@ -4,8 +4,15 @@
 
 void huffman_decode(bitreader* reader, bytewriter* writer) {
 	bytereader* bytereader = reader->bytereader;
-	unsigned int i = 0;
-	unsigned int text_length = read_bits(reader, 32);
+	unsigned int i = 0, text_length;
+	int is_maxsize = read_bits(reader, 1);
+	if (!is_maxsize) {
+		text_length = MAX_BUFFERSIZE;
+	}
+	else {
+		text_length = read_bits(reader, 32);
+	}
+	//unsigned int text_length = read_bits(reader, 32);
 	tree* t = read_tree(reader);
 	if (OUTPUT) {
 		printf("Text length: %d\n", text_length);
@@ -13,7 +20,9 @@ void huffman_decode(bitreader* reader, bytewriter* writer) {
 			printf("Press enter to continue.\n");
 			getchar();
 		}
-		print_tree(t);
+		if (OUTPUTTREE) {
+			print_tree(t);
+		}
 	}
 	node* root = t->root;
 	node* cur = t->root;

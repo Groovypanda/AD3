@@ -8,7 +8,8 @@
 */
 
 #define DEBUG 1 //If you want to debug.
-#define OUTPUT 0 //If you want to output.
-#define STEPS 0 //If you want to debug in steps. 
+#define OUTPUT 1 //If you want to output.
+#define OUTPUTTREE 1 //If you want to output trees. 
+#define STEPS 1 //If you want to debug in steps. 
 
 #endif 

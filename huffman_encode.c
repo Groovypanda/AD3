@@ -5,10 +5,18 @@ void huffman_encode(bytereader* reader, bitwriter* writer) {
 	tree* t = build_huffmantree(frequencies);
 	
 	code* codes = init_codes(t);
-	write_bits(writer, reader->text_length, 8*sizeof(unsigned int));
+	if (reader->text_length == MAX_BUFFERSIZE) {
+		write_bits(writer, 0, 1);
+	}
+	else {
+		write_bits(writer, 1, 1);
+		write_bits(writer, reader->text_length, 8 * sizeof(unsigned int));
+	}
 	if (OUTPUT) {
 		printf("Text length: %d\n", reader->text_length);
-		print_tree(t);
+		if (OUTPUTTREE) {
+			print_tree(t);
+		}
 	}
 	write_tree(writer, t);
 
