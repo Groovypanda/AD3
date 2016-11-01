@@ -3,8 +3,11 @@
 void huffman_encode(bytereader* reader, bitwriter* writer) {
 	unsigned int* frequencies = create_frequency_list(reader->buffer, reader->text_length);
 	tree* t = build_huffmantree(frequencies);
+	
 	code* codes = init_codes(t);
 	write_bits(writer, reader->text_length, 8*sizeof(unsigned int));
+	printf("Text size: %d\n", reader->text_length);
+	print_tree(t);
 	write_tree(writer, t);
 
 	for (unsigned int i = 0; i < reader->text_length; i++) {
@@ -24,13 +27,15 @@ void encode(char* input, char* output) {
 	bytereader* reader = init_bytereader(input);
 	bitwriter* writer = init_bitwriter(output);
 	//While reading isn't finished, huffman encode.
-	
+	int block= 0; 
 	while (!reader->lastblock) {
+		printf("=======================\nBlock %d\n=======================\n", block++);
 		huffman_encode(reader, writer);
 		read_block(reader);
 	}
 	//One last time, to write last bytes. 
 	if (reader->text_length) {
+		printf("=======================\nBlock %d\n=======================\n", block++);
 		huffman_encode(reader, writer);
 	}
 
