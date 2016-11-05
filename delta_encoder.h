@@ -1,0 +1,4 @@
+
+
+
+void delta_encode();

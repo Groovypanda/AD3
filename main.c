@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "huffman_encode.h"
-#include "huffman_decode.h"
+#include "encoder.h"
+#include "decoder.h"
 #include "generator.h"
 #include "filecomparator.h"
 
@@ -11,7 +11,7 @@
 int main(int argc, char* argv[]) {
 	if (DEBUG) {
 		printf("					DEBUG MODE\n");
-		char* input = "data/data_very_very_long.txt";
+		char* input = "data/data_very_long.txt";
 		//generate_fibonacci_file(input);
 		char* encoded = "data/encoded";
 		char* decoded = "data/decoded/data_very_very_long.txt";

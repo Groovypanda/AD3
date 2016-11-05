@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9) (preloaded format=pdflatex 2016.10.29)  1 NOV 2016 23:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9) (preloaded format=pdflatex 2016.10.29)  4 NOV 2016 22:56
 entering extended mode
 **./verslag.tex
 (verslag.tex
@@ -279,7 +279,7 @@ LaTeX Font Info:    ... okay on input line 14.
 
 [1
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] [1]
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\listings\lstlang1.sty"
 File: lstlang1.sty 2015/06/04 1.6 listings language file
 )
@@ -304,12 +304,12 @@ File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 55.
- [3] [4] [5]
-[6] (verslag.aux) ) 
+ [2] [3] [4]
+[5] (verslag.aux) ) 
 Here is how much of TeX's memory you used:
  4186 strings out of 493334
  55490 string characters out of 3136671
- 146094 words of memory out of 3000000
+ 145094 words of memory out of 3000000
  7695 multiletter control sequences out of 15000+200000
  9709 words of font info for 35 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -322,7 +322,7 @@ cmr10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr
 12.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.
 pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pf
 b>
-Output written on verslag.pdf (6 pages, 103323 bytes).
+Output written on verslag.pdf (6 pages, 103460 bytes).
 PDF statistics:
  49 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

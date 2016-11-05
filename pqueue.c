@@ -1,7 +1,5 @@
 #include "pqueue.h"
 
-//Source: Based on algorithms from https://en.wikipedia.org/wiki/Binary_heap
-
 void init_pqueue(pqueue* p) {
 	p->length = 0;
 	p->size = 2;
