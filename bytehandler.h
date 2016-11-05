@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "errorhandler.h"
 
-#define MAX_BUFFERSIZE 1024*8
+#define MAX_BUFFERSIZE 64
 
 /**
 	Struct used for reading bytes from a file. 

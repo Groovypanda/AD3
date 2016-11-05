@@ -14,7 +14,7 @@ void huffman_decode(bitreader* reader, bytewriter* writer) {
 	}
 	//unsigned int text_length = read_bits(reader, 32);
 	tree* t = read_tree(reader);
-	if (OUTPUT) {
+	if (HUFFMAN_OUTPUT) {
 		printf("Text length: %d\n", text_length);
 		if (STEPS) {
 			printf("Press enter to continue.\n");

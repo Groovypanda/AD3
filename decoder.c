@@ -7,13 +7,13 @@ void decode(char* input, char* output) {
 	bytewriter* writer = init_bytewriter(output);
 	int block = 0;
 	while (!reader->bytereader->lastblock) { //Read all of the file buffer by buffer. Finished = 1 if last buffer has been reached. 
-		if (OUTPUT) {
+		if (HUFFMAN_OUTPUT) {
 			printf("=======================\nBlock %d\n=======================\n", block++);
 		}
 		huffman_decode(reader, writer);
 	}
 	while (reader->index < reader->bytereader->text_length - 1) { //Read remaining text in buffer of the bytereader. 
-		if (OUTPUT) {
+		if (HUFFMAN_OUTPUT) {
 			printf("=======================\nBlock %d\n=======================\n", block++);
 		}
 		huffman_decode(reader, writer);
@@ -23,7 +23,7 @@ void decode(char* input, char* output) {
 	free_bitreader(reader);
 	free_bytewriter(writer);
 	clock_t end = clock();
-	if (STATISTICS) {
+	if (HUFFMAN_STATISTICS) {
 		print_statistics_time("Decompression", start, end);
 		print_statics_speed("Decompression", start, end, decoded_size);
 	}

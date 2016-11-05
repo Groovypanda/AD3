@@ -1,4 +1,4 @@
-
+  
 #include "encoder.h"
 
 void encode(char* input, char* output) {
@@ -9,7 +9,7 @@ void encode(char* input, char* output) {
 	//While reading isn't finished, huffman encode.
 	int block = 0;
 	while (!reader->lastblock) {
-		if (OUTPUT) {
+		if (HUFFMAN_OUTPUT) {
 			printf("=======================\nBlock %d\n=======================\n", block++);
 		}
 		huffman_encode(reader, writer);
@@ -17,7 +17,7 @@ void encode(char* input, char* output) {
 	}
 	//One last time, to write last bytes. 
 	if (reader->text_length) {
-		if (OUTPUT) {
+		if (HUFFMAN_OUTPUT) {
 			printf("=======================\nBlock %d\n=======================\n", block++);
 		}
 		huffman_encode(reader, writer);
@@ -31,7 +31,7 @@ void encode(char* input, char* output) {
 	free_bytereader(reader);
 
 	clock_t end = clock();
-	if (STATISTICS) {
+	if (HUFFMAN_STATISTICS) {
 		print_statistics_compression(original_size, encoded_size);
 		print_statistics_time("Compression", start, end);
 		print_statics_speed("Compression", start, end, original_size);

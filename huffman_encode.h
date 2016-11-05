@@ -15,6 +15,8 @@
 #include "pqueue.h"
 #include "debug.h"
 
+void huffman_encode_block(char* block, int block_length, bitwriter* writer);
+
 /**
 	Encodes MAX_BUFFERSIZE amount of bytes from the inputfile (defined in bytereader). The encoded content is written to the outputfile 
 	with the bitwriter. 

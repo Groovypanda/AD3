@@ -4,27 +4,31 @@
 #include "decoder.h"
 #include "generator.h"
 #include "filecomparator.h"
+#include "delta_decoder.h"
+#include "delta_encoder.h"
 
 #include "debug.h"
-#define MB_AMOUNT 10000
 
 int main(int argc, char* argv[]) {
 	if (DEBUG) {
 		printf("					DEBUG MODE\n");
-		char* input = "data/data_very_long.txt";
+		char* input = "data/data.txt";
 		//generate_fibonacci_file(input);
 		char* encoded = "data/encoded";
-		char* decoded = "data/decoded/data_very_very_long.txt";
-		if (OUTPUT || STATISTICS) {
+		char* huffman_decoded = "data/huffman_decoded";
+		char* output = "data/decoded/data.txt";
+		if (DELTA_OUTPUT || DELTA_STATISTICS) {
 			printf("==========================================================================================================\n					ENCODING:\n==========================================================================================================\n");
 		}
-		encode(input, encoded);
-		if (OUTPUT || STATISTICS) {
+		delta_encode(input, encoded);
+		if (DELTA_OUTPUT || DELTA_STATISTICS) {
 			printf("==========================================================================================================\n					DECODING:\n==========================================================================================================\n");
 		}
-		decode(encoded, decoded);
+		decode(encoded, huffman_decoded);
+		delta_decode(huffman_decoded, output);
+		//decode(encoded, decoded);
 		if (COMPARE) {
-			int equal = compare_file(input, decoded);
+			int equal = compare_file(input, output);
 			if (equal) {
 				printf("The files are equal");
 			}

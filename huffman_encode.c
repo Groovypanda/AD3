@@ -1,27 +1,27 @@
 #include "huffman_encode.h"
 
-void huffman_encode(bytereader* reader, bitwriter* writer) {
-	unsigned int* frequencies = create_frequency_list(reader->buffer, reader->text_length);
+void huffman_encode_block(char* block, int block_length, bitwriter* writer) {
+	unsigned int* frequencies = create_frequency_list(block, block_length);
 	tree* t = build_huffmantree(frequencies);
-	
+
 	code* codes = init_codes(t);
-	if (reader->text_length == MAX_BUFFERSIZE) { //Write 0 if length equals MAX_BUFFERSIZE
+	if (block_length == MAX_BUFFERSIZE) { //Write 0 if length equals MAX_BUFFERSIZE
 		write_bits(writer, 0, 1);
 	}
 	else {
 		write_bits(writer, 1, 1); //Writes 1 and length if length doesn't equal MAX_BUFFERSIZE
-		write_bits(writer, reader->text_length, 8 * sizeof(unsigned int));
+		write_bits(writer, block_length, 8 * sizeof(unsigned int));
 	}
-	if (OUTPUT) {
-		printf("Text length: %d\n", reader->text_length);
+	if (HUFFMAN_OUTPUT) {
+		printf("Text length: %d\n", block_length);
 		if (TREE) {
 			print_tree(t);
 		}
 	}
 	write_tree(writer, t);
 
-	for (unsigned int i = 0; i < reader->text_length; i++) {
-		unsigned char x = reader->buffer[i];
+	for (unsigned int i = 0; i < block_length; i++) {
+		unsigned char x = block[i];
 		write_code(writer, codes[x]);
 	}
 
@@ -29,6 +29,10 @@ void huffman_encode(bytereader* reader, bitwriter* writer) {
 	free(frequencies);
 	free_codes(codes);
 	free_tree(t);
+}
+
+void huffman_encode(bytereader* reader, bitwriter* writer) {
+	huffman_encode_block(reader->buffer, reader->text_length, writer);
 }
 
 unsigned int* create_frequency_list(char* text, unsigned int length) {

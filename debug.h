@@ -10,10 +10,12 @@
 #include <stdio.h>
 
 #define DEBUG 1 //If you want to debug.
-#define OUTPUT 0 //If you want to output.
+#define HUFFMAN_OUTPUT 0 //If you want to output huffman.
+#define DELTA_OUTPUT 0 //If you want to output delta.
 #define TREE 0 //If you want to output trees.
-#define STATISTICS 1 //If you want to show statistics about runtime. This doesn't check if OUTPUT is on or off. 
+#define HUFFMAN_STATISTICS 0 //If you want to show statistics about huffman runtime. This doesn't check if HUFFMAN_OUTPUT is on or off. 
+#define DELTA_STATISTICS 1 //If you want to show statistics about delta runtime. This doesn't check if DELTA_OUTPUT is on or off. 
 #define STEPS 0 //If you want to debug in steps. 
-#define COMPARE 0 //This will check if compression is correct.
+#define COMPARE 1 //This will check if compression is correct.
 
 #endif 
