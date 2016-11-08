@@ -1,6 +1,7 @@
 #include "delta_decode.h"
 
-void specific_huffman_decode(bitreader* reader, bytewriter* writer, delta_buffer* delta_buffer) {
+
+void specific_huffman_decode(bitreader* reader, deltadecoder* decoder) {
 	unsigned int i = 0, text_length;
 	int is_maxsize = read_bits(reader, 1);
 	if (!is_maxsize) {
@@ -27,11 +28,10 @@ void specific_huffman_decode(bitreader* reader, bytewriter* writer, delta_buffer
 			if (cur == root) {
 				read_bits(reader, 1);
 			}
-			delta_buffer->buffer[delta_buffer->buffer_index] = cur->value;
-			delta_buffer->buffer_index++; 
-			if (delta_buffer->buffer_index == MAX_BUFFERSIZE+1) {
-				delta_buffer->buffer_index = 0;
-				delta_decode(delta_buffer, writer);
+			decoder->inputbuffer[decoder->inputbuffer_index++] = cur->value;
+			if (decoder->inputbuffer_index == MAX_BUFFERSIZE) {
+				decoder->inputbuffer_index = 0;
+				delta_decode(decoder);
 			}
 			cur = root;
 		}
@@ -41,39 +41,47 @@ void specific_huffman_decode(bitreader* reader, bytewriter* writer, delta_buffer
 
 //Byte index indicates the index in the current long long byte. If this is 8 a full delta was decided, and thus the previous number is known.
 //Else the previous number still has to be decided. 
-void delta_decode(delta_buffer* delta_buffer, bytewriter* writer) {
-	long long current_number, previous_number;
-	char comma = ',';
-	char* numbers = delta_buffer->buffer;
-	if (delta_buffer->byte_index != 0) {
-		long long delta = delta_buffer->last_number; 
-		for(int i=delta_buffer->byte_index && *numbers; i<8; i++){
-			delta *= 10 + (*numbers - '0');
-			numbers++;
-		}
-		current_number = delta_buffer->previous_number + delta;
-		fprintf(writer->ofp, "%lld", current_number);
-		fwrite(&comma, 1, 1, writer->ofp);
+void delta_decode(deltadecoder* decoder) {
+	unsigned long long current_number, previous_number = decoder->previous_number;
+	unsigned long long* numbers = (unsigned long long*) decoder->inputbuffer;
+
+	for(int i=0; i<MAX_BUFFERSIZE/8; i++, numbers++){
+		unsigned long long delta = *numbers;
+		current_number = previous_number + delta;
+		write_long(decoder->writer, current_number);
 		previous_number = current_number;
 	}
+	decoder->previous_number = previous_number;
 	
-	while (*numbers) {
-		char* nptr = numbers; 
-		char* endptr;
-		long long delta = strtoll(numbers, &endptr, 10);
-		printf("start: %d, end: %d, diff: %d\n",nptr, endptr,  endptr - nptr);
-		if(endptr-nptr==8){
-			long long current_number;
-			current_number = previous_number + delta;
-			fprintf(writer->ofp, "%lld", current_number);
-			fwrite(&comma, 1, 1, writer->ofp);
-			previous_number = current_number;
-		}
-		else {
-			delta_buffer->byte_index = endptr - nptr; 
-			delta_buffer->last_number = delta; 
-			delta_buffer->previous_number = previous_number;
-		}
-	}
 }
 
+void write_long(bytewriter* writer, unsigned long long number) {
+	int amount = snprintf(writer->buffer + writer->index, MAX_BUFFERSIZE - writer->index, "%llu", number);
+	writer->index += amount;
+	if (amount > MAX_BUFFERSIZE - writer->index - 1) { //If less bytes are written than should've been written, write out the other bytes. 
+		fwrite(writer->buffer, sizeof(char), MAX_BUFFERSIZE, writer->ofp);
+		int amount_to_write = amount + writer->index - MAX_BUFFERSIZE + 1;
+		writer->index = 0;
+		char remainder[20]; //A 64 bit number can't have more than 19 numbers. 
+		snprintf(remainder, 20, "%lld", number);
+		for (int i = amount_to_write - 1, j = amount - amount_to_write; i >= 0; i--) {
+			writer->buffer[writer->index++] = remainder[j++];
+		}
+	}
+	write_byte(writer, ',');
+}
+
+deltadecoder* init_deltadecoder(bytewriter* writer) {
+	deltadecoder* decoder = (deltadecoder*)malloc(sizeof(deltadecoder));
+	decoder->previous_number = 0;
+	decoder->inputbuffer_index = 0;
+	decoder->writer = writer;
+	write_byte(writer, '[');
+	return decoder; 
+}
+
+void finish_deltadecoder(deltadecoder* decoder) {
+	bytewriter* writer = decoder->writer;
+	writer->buffer[writer->index - 1] = ']'; //Change trailing comma to ].
+	fwrite(writer->buffer, 1, writer->index, writer->ofp);
+}

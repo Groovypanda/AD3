@@ -14,17 +14,15 @@ void standard_decode(bitreader* reader, bytewriter* writer) {
 
 void specific_decode(bitreader* reader, bytewriter* writer) {
 
-	delta_buffer* dbuffer = (delta_buffer*)malloc(sizeof(delta_buffer));
-	dbuffer->buffer_index = 0;
-	dbuffer->byte_index = 0;
-	dbuffer->last_number = 0; 
-	dbuffer->previous_number = 0; 
+	deltadecoder* decoder = init_deltadecoder(writer); 
 	while (!reader->bytereader->lastblock) { //Read all of the file buffer by buffer. Finished = 1 if last buffer has been reached. 
-		specific_huffman_decode(reader, writer, dbuffer);
+		specific_huffman_decode(reader, decoder);
 	}
 	while (reader->index < reader->bytereader->text_length - 1) { //Read remaining text in buffer of the bytereader. 
-		specific_huffman_decode(reader, writer, dbuffer);
+		specific_huffman_decode(reader, decoder);
 	}
+	finish_deltadecoder(decoder);
+	free(decoder);
 }
 
 
@@ -43,10 +41,12 @@ void decode(char* input, char* output, int algorithm) {
 		printf("Something went wrong. Nothing will be encoded.");
 	
 	}
+
+	unsigned long long decoded_size = ftell(writer->ofp);
+
 	free_bitreader(reader);
 	free_bytewriter(writer);
 
-	unsigned long long decoded_size = ftell(writer->ofp);
 	clock_t end = clock();
 	if (STATISTICS) {
 		print_statistics_time("Decompression", start, end);
