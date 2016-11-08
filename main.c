@@ -4,10 +4,10 @@
 #include "decoder.h"
 #include "generator.h"
 #include "filecomparator.h"
-#include "delta_decoder.h"
-#include "delta_encoder.h"
-
 #include "debug.h"
+
+#define STANDARD_ALGORITHM 0 
+#define SPECIFIC_ALGORITHM 1 
 
 int main(int argc, char* argv[]) {
 	if (DEBUG) {
@@ -15,18 +15,15 @@ int main(int argc, char* argv[]) {
 		char* input = "data/data.txt";
 		//generate_fibonacci_file(input);
 		char* encoded = "data/encoded";
-		char* huffman_decoded = "data/huffman_decoded";
 		char* output = "data/decoded/data.txt";
-		if (DELTA_OUTPUT || DELTA_STATISTICS) {
+		if (DELTA_OUTPUT || STATISTICS) {
 			printf("==========================================================================================================\n					ENCODING:\n==========================================================================================================\n");
 		}
-		delta_encode(input, encoded);
-		if (DELTA_OUTPUT || DELTA_STATISTICS) {
+		encode(input, encoded, SPECIFIC_ALGORITHM);
+		if (DELTA_OUTPUT || STATISTICS) {
 			printf("==========================================================================================================\n					DECODING:\n==========================================================================================================\n");
 		}
-		decode(encoded, huffman_decoded);
-		delta_decode(huffman_decoded, output);
-		//decode(encoded, decoded);
+		decode(encoded, output, SPECIFIC_ALGORITHM);
 		if (COMPARE) {
 			int equal = compare_file(input, output);
 			if (equal) {
@@ -44,10 +41,10 @@ int main(int argc, char* argv[]) {
 			shutdown(USAGE_ERROR);
 		}
 		else if (strcmp(argv[1], "-c") == 0) {
-			encode(argv[2], argv[3]);
+			encode(argv[2], argv[3], STANDARD_ALGORITHM);
 		}
 		else if (strcmp(argv[1], "-d") == 0) {
-			decode(argv[2], argv[3]);
+			decode(argv[2], argv[3], STANDARD_ALGORITHM);
 		}
 		else {
 			shutdown(USAGE_ERROR);
