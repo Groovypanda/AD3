@@ -12,18 +12,19 @@
 int main(int argc, char* argv[]) {
 	if (DEBUG) {
 		printf("					DEBUG MODE\n");
-		char* input = "data/data.txt";
-		//generate_fibonacci_file(input);
+		char* input = "data/numbers_1M";
+		//generate_json_file(input, 1000000);
 		char* encoded = "data/encoded";
-		char* output = "data/decoded/data.txt";
+		char* output = "data/decoded/decoded.txt";
+		int algorithm = SPECIFIC_ALGORITHM; 
 		if (DELTA_OUTPUT || STATISTICS) {
 			printf("==========================================================================================================\n					ENCODING:\n==========================================================================================================\n");
 		}
-		encode(input, encoded, SPECIFIC_ALGORITHM);
+		encode(input, encoded, algorithm);
 		if (DELTA_OUTPUT || STATISTICS) {
 			printf("==========================================================================================================\n					DECODING:\n==========================================================================================================\n");
 		}
-		decode(encoded, output, SPECIFIC_ALGORITHM);
+		decode(encoded, output, algorithm);
 		if (COMPARE) {
 			int equal = compare_file(input, output);
 			if (equal) {

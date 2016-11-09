@@ -1,16 +1,16 @@
 #include "generator.h"
 
-void generate_json_file(char* filename, int size) {
+void generate_json_file(char* filename, int numberamount) {
 	unsigned long long x = rand();
 
 	FILE* ofp = open_file(filename, "wb");
 	fwrite("[", 1, 1, ofp);
-	for (unsigned long long i = 0; i < size * 10000; i++) {
+	for (unsigned long long i = 0; i < numberamount; i++) {
 		fprintf(ofp, "%llu", x);
 		fwrite(",", 1, 1, ofp);
 		x += rand();
 	}
-	fprintf(ofp, " %llu", x);
+	fprintf(ofp, "%llu", x);
 	fwrite("]", 1, 1, ofp);
 	fclose(ofp);
 }

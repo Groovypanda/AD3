@@ -31,7 +31,7 @@ void specific_huffman_decode(bitreader* reader, deltadecoder* decoder) {
 			decoder->inputbuffer[decoder->inputbuffer_index++] = cur->value;
 			if (decoder->inputbuffer_index == MAX_BUFFERSIZE) {
 				decoder->inputbuffer_index = 0;
-				delta_decode(decoder);
+				delta_decode(decoder, MAX_BUFFERSIZE/8);
 			}
 			cur = root;
 		}
@@ -41,11 +41,11 @@ void specific_huffman_decode(bitreader* reader, deltadecoder* decoder) {
 
 //Byte index indicates the index in the current long long byte. If this is 8 a full delta was decided, and thus the previous number is known.
 //Else the previous number still has to be decided. 
-void delta_decode(deltadecoder* decoder) {
+void delta_decode(deltadecoder* decoder, unsigned int number_amount) {
 	unsigned long long current_number, previous_number = decoder->previous_number;
 	unsigned long long* numbers = (unsigned long long*) decoder->inputbuffer;
 
-	for(int i=0; i<MAX_BUFFERSIZE/8; i++, numbers++){
+	for(int i=0; i<number_amount; i++, numbers++){
 		unsigned long long delta = *numbers;
 		current_number = previous_number + delta;
 		write_long(decoder->writer, current_number);
@@ -56,17 +56,23 @@ void delta_decode(deltadecoder* decoder) {
 }
 
 void write_long(bytewriter* writer, unsigned long long number) {
-	int amount = snprintf(writer->buffer + writer->index, MAX_BUFFERSIZE - writer->index, "%llu", number);
-	writer->index += amount;
-	if (amount > MAX_BUFFERSIZE - writer->index - 1) { //If less bytes are written than should've been written, write out the other bytes. 
+	int amount = snprintf(writer->buffer + writer->index, MAX_BUFFERSIZE - writer->index+1, "%llu", number);
+	if (writer->index + amount == MAX_BUFFERSIZE) { //Write out the buffer
 		fwrite(writer->buffer, sizeof(char), MAX_BUFFERSIZE, writer->ofp);
-		int amount_to_write = amount + writer->index - MAX_BUFFERSIZE + 1;
 		writer->index = 0;
-		char remainder[20]; //A 64 bit number can't have more than 19 numbers. 
-		snprintf(remainder, 20, "%lld", number);
-		for (int i = amount_to_write - 1, j = amount - amount_to_write; i >= 0; i--) {
-			writer->buffer[writer->index++] = remainder[j++];
+	}
+	else if (writer->index + amount > MAX_BUFFERSIZE) { //If less bytes are written than should've been written, write out the other bytes.
+			fwrite(writer->buffer, sizeof(char), MAX_BUFFERSIZE, writer->ofp);
+			int amount_to_write = amount + writer->index - MAX_BUFFERSIZE;
+			writer->index = 0;
+			char remainder[20]; //A 64 bit number can't have more than 19 numbers. 
+			snprintf(remainder, 20, "%llu", number);
+			for (int i = amount_to_write - 1, j = amount - amount_to_write; i >= 0; i--) {
+				writer->buffer[writer->index++] = remainder[j++];
+			}
 		}
+	else {
+		writer->index += amount;
 	}
 	write_byte(writer, ',');
 }
@@ -81,6 +87,9 @@ deltadecoder* init_deltadecoder(bytewriter* writer) {
 }
 
 void finish_deltadecoder(deltadecoder* decoder) {
+	if (decoder->inputbuffer_index != 0) {
+		delta_decode(decoder, decoder->inputbuffer_index/8);
+	}
 	bytewriter* writer = decoder->writer;
 	writer->buffer[writer->index - 1] = ']'; //Change trailing comma to ].
 	fwrite(writer->buffer, 1, writer->index, writer->ofp);

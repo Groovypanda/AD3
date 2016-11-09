@@ -18,4 +18,14 @@ void delta_encode(bytereader* reader, bitwriter* writer);
 */
 long long concatenate(long long number1, long long number2);
 
+/**
+	Reads an unsigned long long from the buffer and sets the current and previous number correctly. 
+	@param buffer The output buffer
+	@param reader A reader with the input
+	@param current_number The last number which was read.
+	@param previous_number The number before current_number.
+	@return delta: the difference between the last number read and current_number. 
+*/
+unsigned long long read_long(char* buffer, bytereader* reader, unsigned long long* current_number, unsigned long long* previous_number);
+
 #endif

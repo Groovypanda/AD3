@@ -14,8 +14,9 @@
 /**
 	Generate a file containing a json string with climbing numbers. 
 	@param filename The file to which the generated content will be written.
+	@param numberamount Indicates how many numbers should be written into the file. 
 */
-void generate_json_file(char* filename, int size);
+void generate_json_file(char* filename, int numberamount);
 
 /**
 	Generate a file containing only zeros. 
