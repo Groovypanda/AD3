@@ -26,6 +26,8 @@ long long concatenate(long long number1, long long number2);
 	@param previous_number The number before current_number.
 	@return delta: the difference between the last number read and current_number. 
 */
-unsigned long long read_long(char* buffer, bytereader* reader, unsigned long long* current_number, unsigned long long* previous_number);
+unsigned long long read_long(char** buffer, bytereader* reader, unsigned long long* current_number, unsigned long long* previous_number);
+
+void write_number(bitwriter* bitwriter, unsigned long long delta);
 
 #endif

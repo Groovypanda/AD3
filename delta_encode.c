@@ -5,39 +5,18 @@ void delta_encode(bytereader* reader, bitwriter* writer) {
 	unsigned long long numbers[MAX_BUFFERSIZE / 8]; //An unsigned long long is 8 bytes, BUFFERSIZE equals the max amount of bytes in a buffer.
 	unsigned int number_index = 0; 
 	unsigned long long previous_number = 0, current_number, delta; 
-	unsigned long long max_value = 0; 
+	char out_buffer[MAX_BUFFERSIZE];
 	//This loop will encode all the data of the input file. (Not only one buffer, it continues reading into the buffer 
 	//until the full file is encoded. 
 	while (*buffer) { 
 		if (isdigit(*buffer)) {
 			delta = read_long(&buffer, reader, &current_number, &previous_number);
+			write_number(delta, dwriter);
 			numbers[number_index++] = delta;
-			if (delta > max_value) {
-				max_value = delta; 
-			}
-			if (number_index == MAX_BUFFERSIZE && max_value <= 255) {
-				char* out_buffer = (char*)((unsigned char*)numbers);
-				huffman_encode_block(out_buffer, MAX_BUFFERSIZE, writer);
-				number_index = 0;
-				max_value = 0;
-			}
-			if (number_index == MAX_BUFFERSIZE / 2 && max_value > 255) {
-				char* out_buffer = (char*)((unsigned short*)numbers);
-				huffman_encode_block(out_buffer, MAX_BUFFERSIZE, writer);
-				number_index = 0;
-				max_value = 0;
-			}
-			if (number_index == MAX_BUFFERSIZE / 4 && max_value > 65535) {
-				char* out_buffer = (char*)((unsigned int*)numbers);
-				huffman_encode_block(out_buffer, MAX_BUFFERSIZE, writer);
-				number_index = 0;
-				max_value = 0;
-			}
 			if (number_index == MAX_BUFFERSIZE / 8) {
 				char* out_buffer = (char*)((unsigned long*)numbers);
 				huffman_encode_block(out_buffer, MAX_BUFFERSIZE, writer);
 				number_index = 0; 
-				max_value = 0;
 			}
 			
 		}

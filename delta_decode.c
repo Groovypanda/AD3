@@ -31,7 +31,7 @@ void specific_huffman_decode(bitreader* reader, deltadecoder* decoder) {
 			decoder->inputbuffer[decoder->inputbuffer_index++] = cur->value;
 			if (decoder->inputbuffer_index == MAX_BUFFERSIZE) {
 				decoder->inputbuffer_index = 0;
-				delta_decode(decoder, MAX_BUFFERSIZE/8);
+				delta_decode(decoder);
 			}
 			cur = root;
 		}
@@ -41,19 +41,33 @@ void specific_huffman_decode(bitreader* reader, deltadecoder* decoder) {
 
 //Byte index indicates the index in the current long long byte. If this is 8 a full delta was decided, and thus the previous number is known.
 //Else the previous number still has to be decided. 
-void delta_decode(deltadecoder* decoder, unsigned int number_amount) {
+void delta_decode(deltadecoder* decoder) {
 	unsigned long long current_number, previous_number = decoder->previous_number;
-	unsigned long long* numbers = (unsigned long long*) decoder->inputbuffer;
-
-	for(int i=0; i<number_amount; i++, numbers++){
-		unsigned long long delta = *numbers;
+	while (decoder->inputbuffer_index < MAX_BUFFERSIZE) {
+		unsigned long long delta = read_number(decoder);
 		current_number = previous_number + delta;
 		write_long(decoder->writer, current_number);
 		previous_number = current_number;
+
 	}
 	decoder->previous_number = previous_number;
 	
 }
+
+//Variable length quantity
+unsigned long long read_number(deltadecoder* decoder) {
+	char current_byte = decoder->inputbuffer[decoder->inputbuffer_index];
+	unsigned char continue_reading = current_byte & 0x80; //Get most significant bit. 
+	unsigned long long value = 0; 
+	while (continue_reading) {
+		value |= current_byte & 0x7F; //Add 7 bits.
+		value <<= 7; //Make space for next 7 bits. 
+		continue_reading = current_byte & 0x80; //Check most significant bit. 
+	}
+	value |= current_byte; //Most significant bit is zero. 
+	return value;
+}
+
 
 void write_long(bytewriter* writer, unsigned long long number) {
 	int amount = snprintf(writer->buffer + writer->index, MAX_BUFFERSIZE - writer->index+1, "%llu", number);
