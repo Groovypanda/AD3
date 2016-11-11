@@ -11,7 +11,7 @@ void delta_encode(bytereader* reader, bitwriter* writer) {
 	while (*buffer) { 
 		if (isdigit(*buffer)) {
 			delta = read_long(&buffer, reader, &current_number, &previous_number);
-			write_number(delta, dwriter);
+			write_number(writer, delta);
 			numbers[number_index++] = delta;
 			if (number_index == MAX_BUFFERSIZE / 8) {
 				char* out_buffer = (char*)((unsigned long*)numbers);

@@ -23,7 +23,6 @@ void write_long(bytewriter* writer, unsigned long long number);
 
 deltadecoder* init_deltadecoder(bytewriter* writer);
 void finish_deltadecoder(deltadecoder* decoder);
-unsigned long long read_bits(deltadecoder* reader, unsigned int amount);
 unsigned long long read_number(deltadecoder* reader);
 
 
