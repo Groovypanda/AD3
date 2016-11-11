@@ -11,11 +11,10 @@ void delta_encode(bytereader* reader, bitwriter* writer) {
 	while (*buffer) { 
 		if (isdigit(*buffer)) {
 			delta = read_long(&buffer, reader, &current_number, &previous_number);
-			write_number(delta, dwriter);
+			write_number(delta, writer->bytewriter);
 			numbers[number_index++] = delta;
 			if (number_index == MAX_BUFFERSIZE / 8) {
 				char* out_buffer = (char*)((unsigned long*)numbers);
-				huffman_encode_block(out_buffer, MAX_BUFFERSIZE, writer);
 				number_index = 0; 
 			}
 			
@@ -68,4 +67,27 @@ unsigned long long read_long(char** buffer, bytereader* reader, unsigned long lo
 	}
 	*previous_number = *current_number;
 	return delta;
+}
+
+void write_number(bitwriter* bitwriter, unsigned long long delta) {
+	bytewriter* writer = bitwriter->bytewriter;
+	unsigned long long value = delta;
+	//Calculate amount of bits in delta. (Amount of times 7 bits) 
+	int amount_7bits = 0;
+	while (value) {
+		value >>= 7;
+		amount_7bits++;
+	}
+	for (int i = amount_7bits; i > 1; i--) {
+		writer->buffer[writer->index++] = ((delta >> (i - 1) * 7) & 0x7F) | 128;
+		if (writer->index == MAX_BUFFERSIZE) {
+			huffman_encode_block(writer->buffer, MAX_BUFFERSIZE, writer);
+			writer->index = 0;
+		}
+	}
+	writer->buffer[writer->index++] = delta & 0x7F;
+	if (writer->index == MAX_BUFFERSIZE) {
+		huffman_encode_block(writer->buffer, MAX_BUFFERSIZE, writer);
+		writer->index = 0;
+	}
 }
