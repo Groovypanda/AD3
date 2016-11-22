@@ -1,24 +1,17 @@
 #include "delta_encode.h"
 
+
 void delta_encode(bytereader* reader, bitwriter* writer) {
 	char* buffer = reader->buffer;
-	unsigned long long numbers[MAX_BUFFERSIZE / 8]; //An unsigned long long is 8 bytes, BUFFERSIZE equals the max amount of bytes in a buffer.
-	unsigned int number_index = 0; 
-	unsigned long long previous_number = 0, current_number, delta; 
+	unsigned int out_buffer_index = 0; 
 	char out_buffer[MAX_BUFFERSIZE];
+	unsigned long long previous_number = 0, current_number, delta; 
 	//This loop will encode all the data of the input file. (Not only one buffer, it continues reading into the buffer 
 	//until the full file is encoded. 
 	while (*buffer) { 
 		if (isdigit(*buffer)) {
-			delta = read_long(&buffer, reader, &current_number, &previous_number);
-			write_number(writer, delta);
-			numbers[number_index++] = delta;
-			if (number_index == MAX_BUFFERSIZE / 8) {
-				char* out_buffer = (char*)((unsigned long*)numbers);
-				huffman_encode_block(out_buffer, MAX_BUFFERSIZE, writer);
-				number_index = 0; 
-			}
-			
+			delta = read_long(&buffer, reader, &current_number, &previous_number); //Calculate the delta.
+			write_number(out_buffer, &out_buffer_index, writer, delta); //Add the number to the buffer. 
 		}
 		else { //If it's not a digit, it's not encoded. 
 			buffer++;
@@ -28,15 +21,7 @@ void delta_encode(bytereader* reader, bitwriter* writer) {
 			buffer = reader->buffer;
 		}
 	}
-	if (number_index > 0) {
-		unsigned long long* numbers_cpy = (unsigned long long*)malloc(sizeof(unsigned long long)*number_index);
-		for (int i = 0; i < number_index; i++) {
-			numbers_cpy[i] = numbers[i];
-		}
-		char* out_buffer = (char*)numbers_cpy;
-		huffman_encode_block(out_buffer, number_index*8, writer); //Number index equals index+1 ==> equals size
-		free(numbers_cpy);
-	}
+	huffman_encode_block(out_buffer, out_buffer_index, writer); //Encode the block once all delta's in a buffer are calculated. 
 	
 }
 
@@ -49,23 +34,45 @@ long long concatenate(long long number1, long long number2) {
 }
 
 unsigned long long read_long(char** buffer, bytereader* reader, unsigned long long* current_number, unsigned long long* previous_number) {
-	*current_number = strtoll(*buffer, buffer, 10);
-	unsigned long long delta = *current_number - *previous_number;
-	if (!*(*buffer)) {
+	*current_number = strtoll(*buffer, buffer, 10); //Read a number from the input.  
+	unsigned long long delta = *current_number - *previous_number;  //Calculate the delta value
+	if (!*(*buffer)) { //If the buffer is empty, read a new block. 
 		read_block(reader);
 		*buffer = reader->buffer;
-		if (isdigit(*(*buffer))) { //Calculate actual delta if the buffer ended while reading a long long
-			while (*(*buffer) == '0') {
+		if (isdigit(*(*buffer))) { //Calculate actual delta if the buffer ended while reading the number
+			while (*(*buffer) == '0') { //Add zero's the incomplete number if necessary
 				*current_number *= 10;
 				(*buffer)++;
 			}
-			unsigned long long numberend = strtoll(*buffer, buffer, 10);
+			unsigned long long numberend = strtoll(*buffer, buffer, 10); 
 			if (numberend != 0) { //if numberend is 0 it means nothing was read by strtoll.
-				*current_number = concatenate(*current_number, numberend);
+				*current_number = concatenate(*current_number, numberend); //Append the numbers which weren't read in the initial strtoll.
 			}
-			delta = *current_number - *previous_number;
+			delta = *current_number - *previous_number; //Calculate the real delta
 		}
 	}
 	*previous_number = *current_number;
 	return delta;
+}
+
+void write_number(char* out_buffer, unsigned int* out_buffer_index, bitwriter* bitwriter, unsigned long long delta) {
+	unsigned long long value = delta;
+	//Calculate amount of bits in delta. (Amount of times 7 bits) 
+	int amount_7bits = 0;
+	while (value) { //Calculate the amount of groups with 7 bits
+		value >>= 7; 
+		amount_7bits++;
+	}
+	for (int i = amount_7bits; i > 1; i--) { //Place all the groups in the buffer
+		out_buffer[(*out_buffer_index)++] = ((delta >> (i - 1) * 7) & 0x7F) | 128; //If there's another group following, a group starts with 1. The group is calculated with the shift (i-1)/7 
+		if (*out_buffer_index == MAX_BUFFERSIZE) { //If the buffer is full, encode the block with huffman.
+			*out_buffer_index = 0;
+			huffman_encode_block(out_buffer, MAX_BUFFERSIZE, bitwriter);
+		}
+	}
+	out_buffer[(*out_buffer_index)++] = delta & 0x7F; //Add the last 7 bits to the buffer, now the first bit should be zero as there aren't anymore groups following.
+	if (*out_buffer_index == MAX_BUFFERSIZE) { //Again, if the buffer is full, it should be encoded.
+		*out_buffer_index = 0;
+		huffman_encode_block(out_buffer, MAX_BUFFERSIZE, bitwriter);
+	}
 }

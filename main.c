@@ -12,11 +12,11 @@
 int main(int argc, char* argv[]) {
 	if (DEBUG) {
 		printf("					DEBUG MODE\n");
-		char* input = "data/numbers_1M";
-		//generate_json_file(input, 1000000);
+		char* input = "data/Hearthstone.exe";
+		//generate_json_file(input, 100000000);
 		char* encoded = "data/encoded";
-		char* output = "data/decoded/decoded.txt";
-		int algorithm = SPECIFIC_ALGORITHM; 
+		char* output = "data/decoded/decoded.exe";
+		int algorithm = STANDARD_ALGORITHM; 
 		if (DELTA_OUTPUT || STATISTICS) {
 			printf("==========================================================================================================\n					ENCODING:\n==========================================================================================================\n");
 		}
@@ -33,6 +33,9 @@ int main(int argc, char* argv[]) {
 			else {
 				printf("The files aren't equal");
 			}
+		}
+		else {
+			printf("The files weren't compared.");
 		}
 		printf("\n\nDebugging finished. Press enter.");
 		getchar(); 

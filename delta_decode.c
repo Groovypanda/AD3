@@ -28,9 +28,9 @@ void specific_huffman_decode(bitreader* reader, deltadecoder* decoder) {
 			if (cur == root) {
 				read_bits(reader, 1);
 			}
+			//Instead of writing the output to a file (as the initial algorithm), now the output will be saved into a buffer which should be delta decoded when full.
 			decoder->inputbuffer[decoder->inputbuffer_index++] = cur->value;
-			if (decoder->inputbuffer_index == MAX_BUFFERSIZE) {
-				decoder->inputbuffer_index = 0;
+			if (decoder->inputbuffer_index == MAX_BUFFERSIZE) { 
 				delta_decode(decoder);
 			}
 			cur = root;
@@ -42,29 +42,53 @@ void specific_huffman_decode(bitreader* reader, deltadecoder* decoder) {
 //Byte index indicates the index in the current long long byte. If this is 8 a full delta was decided, and thus the previous number is known.
 //Else the previous number still has to be decided. 
 void delta_decode(deltadecoder* decoder) {
+	decoder->inputbuffer_length = decoder->inputbuffer_index; //Save the size
+	decoder->inputbuffer_index = 0; //Reset the index
 	unsigned long long current_number, previous_number = decoder->previous_number;
-	while (decoder->inputbuffer_index < MAX_BUFFERSIZE) {
-		unsigned long long delta = read_number(decoder);
+	//Check if the decoder had finished reading its last number. If not continue with the last number.
+	if (!decoder->finished) { //Complete the last delta if necessary
+		unsigned long long delta = read_number(decoder, decoder->current_number);
 		current_number = previous_number + delta;
-		write_long(decoder->writer, current_number);
+		write_long(decoder->writer, current_number); 
+		write_byte(decoder->writer, ','); //One comma after each number. 
 		previous_number = current_number;
-
 	}
-	decoder->previous_number = previous_number;
-	
+
+	while (decoder->inputbuffer_index < decoder->inputbuffer_length) { //Decode all delta values in the inputbuffer.
+		unsigned long long delta = read_number(decoder, 0); //Read the next delta
+		if (!decoder->finished) { //If the decoder didn't finish reading the number, place the current delta into current_number.
+			decoder->current_number = delta; 
+		}
+		else {
+			current_number = previous_number + delta; //Calculate the actual number
+			write_long(decoder->writer, current_number); //Write this number with the bytewriter
+			write_byte(decoder->writer, ','); //Append with a comma
+			previous_number = current_number; //The new previous number is the current number
+		}
+	}
+	decoder->previous_number = previous_number; //Save the previous_number
+	decoder->inputbuffer_index = 0; //Reset the index
 }
 
 //Variable length quantity
-unsigned long long read_number(deltadecoder* decoder) {
-	char current_byte = decoder->inputbuffer[decoder->inputbuffer_index];
+unsigned long long read_number(deltadecoder* decoder, unsigned long long value) { //The given value will be filled with the bits from the inputstream. In a default case value should be zero. 
+	unsigned char current_byte = decoder->inputbuffer[decoder->inputbuffer_index++];
 	unsigned char continue_reading = current_byte & 0x80; //Get most significant bit. 
-	unsigned long long value = 0; 
-	while (continue_reading) {
+	while (continue_reading && decoder->inputbuffer_index < decoder->inputbuffer_length) {
 		value |= current_byte & 0x7F; //Add 7 bits.
 		value <<= 7; //Make space for next 7 bits. 
+		current_byte = decoder->inputbuffer[decoder->inputbuffer_index++]; //Read next byte. 
 		continue_reading = current_byte & 0x80; //Check most significant bit. 
 	}
-	value |= current_byte; //Most significant bit is zero. 
+	value |= current_byte & 0x7F;
+	//If most significant bit wasn't zero, the read number function didn't finish. 
+	if (continue_reading) {
+		value <<= 7; //Make space for next bits. 
+		decoder->finished = 0;
+	}
+	else {
+		decoder->finished = 1; 
+	}
 	return value;
 }
 
@@ -88,7 +112,6 @@ void write_long(bytewriter* writer, unsigned long long number) {
 	else {
 		writer->index += amount;
 	}
-	write_byte(writer, ',');
 }
 
 deltadecoder* init_deltadecoder(bytewriter* writer) {
@@ -96,13 +119,15 @@ deltadecoder* init_deltadecoder(bytewriter* writer) {
 	decoder->previous_number = 0;
 	decoder->inputbuffer_index = 0;
 	decoder->writer = writer;
+	decoder->finished = 1; //Default case 
+	decoder->current_number = 0; 
 	write_byte(writer, '[');
 	return decoder; 
 }
 
 void finish_deltadecoder(deltadecoder* decoder) {
 	if (decoder->inputbuffer_index != 0) {
-		delta_decode(decoder, decoder->inputbuffer_index/8);
+		delta_decode(decoder, decoder->inputbuffer_index);
 	}
 	bytewriter* writer = decoder->writer;
 	writer->buffer[writer->index - 1] = ']'; //Change trailing comma to ].

@@ -8,7 +8,9 @@
 
 #include <stdio.h>
 #include "errorhandler.h"
-
+#include "delta_decode.h" //This file contains a function for writing long long numbers with a buffer. 
+#include "bytehandler.h" //This file contains functionality for writing numbers to a buffer, and these buffers to a file. 
+ 
 #define AMOUNT 10000 //Is used to indicate how many bytes will be written.
 
 /**

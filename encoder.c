@@ -25,10 +25,10 @@ void encode(char* input, char* output, int algorithm) {
 	bytereader* reader = init_bytereader(input);
 	bitwriter* writer = init_bitwriter(output);
 
-	if (SPECIFIC_ALGORITHM) { // 1 means specific algorithm
+	if (algorithm == SPECIFIC_ALGORITHM) { // 1 means specific algorithm
 		specific_encode(reader, writer);
 	}
-	else if(STANDARD_ALGORITHM) { // 0 means standard algorithm
+	else if(algorithm == STANDARD_ALGORITHM) { // 0 means standard algorithm
 		standard_encode(reader, writer);
 	}
 	else {

@@ -1,18 +1,22 @@
 #include "generator.h"
 
+#define MAX_SIZE 64*1024
+
 void generate_json_file(char* filename, int numberamount) {
 	unsigned long long x = rand();
-
-	FILE* ofp = open_file(filename, "wb");
-	fwrite("[", 1, 1, ofp);
+	char out_buffer[MAX_SIZE];
+	unsigned long index = 0; 
+	bytewriter* writer = init_bytewriter(filename);
+	write_byte(writer, '[');
 	for (unsigned long long i = 0; i < numberamount; i++) {
-		fprintf(ofp, "%llu", x);
-		fwrite(",", 1, 1, ofp);
+		write_long(writer, x); //This function also writes a comma!
+		write_byte(writer, ',');
 		x += rand();
 	}
-	fprintf(ofp, "%llu", x);
-	fwrite("]", 1, 1, ofp);
-	fclose(ofp);
+	write_long(writer, x);
+	write_byte(writer, ']');
+	flush_bytes(writer);
+	free_bytewriter(writer);
 }
 
 void generate_zeros_file(char* filename) {

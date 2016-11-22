@@ -15,6 +15,6 @@
 #define TREE 0 //If you want to output trees.
 #define STATISTICS 1 //If you want to show statistics about runtime. This doesn't check if OUTPUT globals are on or off. 
 #define STEPS 0 //If you want to debug in steps. 
-#define COMPARE 1 //This will check if compression is correct.
+#define COMPARE 0 //This will check if compression is correct.
 
 #endif 
