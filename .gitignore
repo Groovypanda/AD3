@@ -1,6 +1,7 @@
 /*
 /*/
 !.gitignore
-!*.h
-!*.c
+!/src/
 !/verslag/
+!/tests/
+!/extra/
