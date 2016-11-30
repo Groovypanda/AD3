@@ -8,7 +8,10 @@
 
 #include <time.h>
 #include <stdio.h>
-#include "../gedeeld/errorhandler.h"
+#include "../src/gedeeld/errorhandler.h"
+
+#define STANDARD_ALGORITHM 0 
+#define SPECIFIC_ALGORITHM 1 
 
 /**
 	@param start The start of the interval assigned by clock()

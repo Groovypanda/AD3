@@ -2,16 +2,13 @@
 #define DECODE_H
 
 /**
-	encoder.h 
-	Purpose: Printing statistics while decoding.
+	benchmark_encoder.h 
+	Purpose: Prints benchmarks after decoding.
 */
 
-#include "../standaard/standard_coder.h"
-#include "../specifiek/specific_coder.h"
-#include "../gedeeld/bithandler.h"
-#include "../gedeeld/bytehandler.h"
+#include "../src/standaard/standard_coder.h"
+#include "../src/specifiek/specific_coder.h"
 #include "statistics.h"
-#include "debug.h"
 
 #define STANDARD_ALGORITHM 0 
 #define SPECIFIC_ALGORITHM 1 

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "errorhandler.h"
 
+//64*1024
 #define MAX_BUFFERSIZE 64*1024
 
 /**

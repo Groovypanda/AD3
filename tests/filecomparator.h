@@ -7,7 +7,7 @@
 */
 
 #include <stdio.h>
-#include "../gedeeld/bytehandler.h" 
+#include "../src/gedeeld/bytehandler.h" 
 
 /**
 	Compares the content of 2 files
